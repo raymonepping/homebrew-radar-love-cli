@@ -17,15 +17,16 @@ validate_flags() {
 
   [[ "$debug" == "compact" ]] && compact=true && _flags_ref[debug]="true"
 
-  VALID_FLAGS=(create build fresh commit request quiet status language scenario debug validate version help)
+  VALID_FLAGS=(create build fresh commit request quiet status language scenario debug validate version help repo_name)
 
-  # Check for any unknown flags
+  # ✅ Unknown flag check (strict match)
   for key in "${!_flags_ref[@]}"; do
-    if [[ ! " ${VALID_FLAGS[*]} " =~ " ${key} " ]]; then
+    if [[ ! " ${VALID_FLAGS[*]} " =~ (^|[[:space:]])$key($|[[:space:]]) ]]; then
       log_error "Unknown flag: --$key"
     fi
   done
 
+  # ✅ Boolean validation
   for flag in create build fresh commit request quiet status; do
     _flags_ref[$flag]="${_flags_ref[$flag]:-false}"
     if [[ "${_flags_ref[$flag]}" != "true" && "${_flags_ref[$flag]}" != "false" ]]; then
@@ -33,10 +34,12 @@ validate_flags() {
     fi
   done
 
-  _flags_ref[language]="${_flags_ref[language]:-bash}"
-  _flags_ref[scenario]="${_flags_ref[scenario]:-AWS}"
+  # ✅ Safe defaulting (only if not set)
+  [[ -z "${_flags_ref[language]:-}" ]] && _flags_ref[language]="bash"
+  [[ -z "${_flags_ref[scenario]:-}" ]] && _flags_ref[scenario]="AWS"
   _flags_ref[debug]="${_flags_ref[debug]:-false}"
 
+  # 🧠 Intelligent correction
   if [[ "${_flags_ref[build]}" != "true" && \
         ( "${_flags_ref[language]}" != "bash" || "${_flags_ref[scenario]}" != "AWS" ) ]]; then
     log_warn "Explicit --language=${_flags_ref[language]} and/or --scenario=${_flags_ref[scenario]} given but --build=false"
@@ -44,4 +47,3 @@ validate_flags() {
     _flags_ref[build]="true"
   fi
 }
-

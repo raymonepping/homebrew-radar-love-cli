@@ -35,17 +35,21 @@ icon_step="➡️"
 icon_done="🏁"
 
 # -------- CONFIGURATION --------
-REPO_NAME="medium_gas_panic"
-GH_USER="$(gh api user --jq .login)"
+RAW_REPO_NAME="${FLAGS[repo_name]:-Definitely_Maybe}"
+REPO_NAME=$(echo "$RAW_REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')
 DIR="$(pwd)"
 PROJECT_FOLDER="$DIR/$REPO_NAME"
+
+GH_USER="$(gh api user --jq .login)"
+
 CREATE=true
 BUILD=false
 FRESH=false
-LANGUAGE="bash"
-SCENARIO="AWS"
 COMMIT=false
 REQUEST=false
+
+LANGUAGE="bash"
+SCENARIO="AWS"
 
 check_dependencies() {
   echo "==== 🔍 Validating Environment Dependencies ===="
@@ -147,6 +151,10 @@ parse_flags() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      --repo-name)
+        FLAGS_REF[repo_name]="$2"
+        shift 2
+        ;;
       --build)
         FLAGS_REF[build]="${2:-true}"
         shift 2
