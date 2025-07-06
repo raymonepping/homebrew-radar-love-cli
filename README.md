@@ -72,6 +72,6 @@ Because automation should automate itself. 🚀
 
 🧠 Powered by radar_love.sh — 📚 Related Articles
 
-- 📖 [Part I — From Dream to Demo](https://medium.com/continuous-insights/from-dream-to-demo-building-an-automated-secret-scanning-pipeline-064a64971f64)
-- 🛠️ [Part II — From Vision to Version](https://medium.com/@raymonepping/from-vision-to-version-evolving-radar-love-with-flags-validation-and-ci-swagger-83610d549412)
-- 📦 Part III — Packaging radar_love_cli (TBD)
+- 📖 [Part I – From Dream to Demo](https://medium.com/continuous-insights/from-dream-to-demo-building-an-automated-secret-scanning-pipeline-064a64971f64)
+- 🛠️ [Part II – From Vision to Version](https://medium.com/@raymonepping/from-vision-to-version-evolving-radar-love-with-flags-validation-and-ci-swagger-83610d549412)
+- 📦 Part III – Packaging radar_love_cli (TBD)
