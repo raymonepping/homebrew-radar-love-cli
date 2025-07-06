@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# 🛸 Entry point for radar_love
+# Delegates to core/ scripts
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(dirname "$DIR")"
+
+source "$ROOT/core/flag_validator.sh"
+source "$ROOT/core/commit_gh.sh"
+# ... other includes
+
+# Placeholder logic
+echo "🚀 Radar Love CLI invoked!"
