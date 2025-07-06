@@ -70,4 +70,4 @@ Because automation should automate itself. 🚀
 > “And as the day was dawning. My plane flew away. With all the things caught in my mind..” — *Oasis*
 
 © 2025 Raymon Epping
-🧠 Powered by radar_love.sh — Born in Part I, battle-tested in Part II, packaged in Part III.
+🧠 Powered by radar_love.sh — Born in Part I, battle-tested in Part II, packaged in Part III (TBD).
