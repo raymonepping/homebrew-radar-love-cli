@@ -128,9 +128,6 @@ FILE_HEADER="$TEMPLATE_FOLDER/header.tpl"
 FILE_FOOTER="$TEMPLATE_FOLDER/footer.tpl"
 FILE_README="$TEMPLATE_FOLDER/README.tpl"
 
-
-
-
 GITIGNORE_SOURCES=("$SCRIPTS_FOLDER/.gitignore" "$HOME/.gitignore_global")
 
 # --- Load Flag Validator ---
@@ -146,7 +143,8 @@ declare -A FLAGS
 
 parse_flags() {
   local -n FLAGS_REF=$1
-  shift  # 👈 Shift out "FLAGS" so only real CLI flags remain
+  shift  # Shift out "FLAGS" so only real CLI flags remain
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --build)
@@ -177,10 +175,6 @@ parse_flags() {
         FLAGS_REF[debug]="true"
         shift
         ;;
-      --debug)
-        FLAGS_REF[debug]="true"
-        shift
-        ;;
       --quiet)
         FLAGS_REF[quiet]="true"
         shift
@@ -188,14 +182,16 @@ parse_flags() {
       --status)
         FLAGS_REF[status]="true"
         shift
-        ;;        
+        ;;
       --scenario)
         FLAGS_REF[scenario]="$2"
         shift 2
         ;;
       *)
-        echo "⚠️  Unknown flag: $1"
-        shift
+        if [[ "${FLAGS_REF[quiet]}" != "true" ]]; then
+          echo "❌ Unknown flag: $1"
+        fi
+        exit 1  # 🔥 Fail on unknown flag
         ;;
     esac
   done
@@ -222,41 +218,6 @@ progress() {
   printf "${color_green}[%-10s] %3d%%%s\r" "$bar" "$pct" "$color_reset"
   if [ "$pct" -eq 100 ]; then echo; fi
 }
-
-# -------- Early --help/--version --------
-for arg in "$@"; do
-  case "$arg" in
-  --help)
-  cat <<EOF
-Usage: $0 [--create true|false] [--build true|false] [--fresh true|false] [--language <lang>] [--scenario <scenario>]
-           [--commit true|false] [--request true|false] [--debug] [--quiet] [--status]
-  All file locations (scripts folder, .json, builder) are set at the top of the script.
-  Example: ./radar_love.sh --build true --request true
-
-Flags:
-  --create true|false    Create (or connect) GitHub repo (default: true)
-  --build true|false     Generate demo leak branch/files (default: false)
-  --fresh true|false     Remove and recreate the repo/folder if it exists (default: false)
-  --language <lang>      Builder language for demo (default: bash)
-  --scenario <scenario>  Builder scenario for demo (default: AWS)
-  --commit true|false    Run commit_gh.sh if present (default: false)
-  --request true|false   Trigger PR scan (default: false)
-  --debug                Enable debug output (compact flag summary)
-  --quiet                Suppress banner and progress output (useful for CI or cron)
-  --status               Only print current Git status for the project folder and exit
-  --help                 Show this help and exit
-  --version              Show version and exit
-
-Set REPO_NAME at the top if you want to change the demo repo/folder name.
-EOF
-    exit 0
-    ;;
-  --version)
-    echo "$(basename "$0") version: $VERSION"
-    exit 0
-    ;;
-  esac
-done
 
 # --- Run parsing and validation ---
 parse_flags FLAGS "$@"
