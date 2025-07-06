@@ -34,23 +34,6 @@ icon_pr="🔀"
 icon_step="➡️"
 icon_done="🏁"
 
-# -------- CONFIGURATION --------
-RAW_REPO_NAME="${FLAGS[repo_name]:-Definitely_Maybe}"
-REPO_NAME=$(echo "$RAW_REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')
-DIR="$(pwd)"
-PROJECT_FOLDER="$DIR/$REPO_NAME"
-
-GH_USER="$(gh api user --jq .login)"
-
-CREATE=true
-BUILD=false
-FRESH=false
-COMMIT=false
-REQUEST=false
-
-LANGUAGE="bash"
-SCENARIO="AWS"
-
 check_dependencies() {
   echo "==== 🔍 Validating Environment Dependencies ===="
   local missing=0
@@ -240,6 +223,23 @@ progress() {
 # --- Run parsing and validation ---
 parse_flags FLAGS "$@"
 validate_flags FLAGS
+
+# -------- CONFIGURATION --------
+RAW_REPO_NAME="${FLAGS[repo_name]:-Definitely_Maybe}"
+REPO_NAME=$(echo "$RAW_REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')
+DIR="$(pwd)"
+PROJECT_FOLDER="$DIR/$REPO_NAME"
+
+GH_USER="$(gh api user --jq .login)"
+
+CREATE=true
+BUILD=false
+FRESH=false
+COMMIT=false
+REQUEST=false
+
+LANGUAGE="bash"
+SCENARIO="AWS"
 
 # -------- Set values from FLAGS --------
 CREATE="${FLAGS[create]:-true}"
