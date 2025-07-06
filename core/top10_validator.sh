@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # --- top10_validator.sh: Check a script against our Bash Top 10 (Color + Markdown) ---
 
-# shellcheck disable=SC2034 # intentional: VERSION is used by automation
 # shellcheck disable=SC2034
-VERSION="2.1.0"
+VERSION="1.0.0"
 
 # --- Enable strict mode for safety and fail-fast behavior ---
 set -euo pipefail
