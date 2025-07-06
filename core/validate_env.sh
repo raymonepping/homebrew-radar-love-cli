@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.0.0"
+VERSION="1.2.0"
+
 REQUIRED_TOOLS=(gh jq awk sed shfmt shellcheck git)
 
 echo -e "\n==== 🔍 Validating Environment Dependencies ====\n"

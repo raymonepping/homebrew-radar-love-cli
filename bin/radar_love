@@ -119,17 +119,21 @@ check_github_auth() {
   fi
 }
 
-# -------- 📁 Input file locations (Homebrew-compatible) --------
-HOMEBREW_PREFIX="$(brew --prefix radar_love_cli 2>/dev/null || true)"
-if [[ -d "$HOMEBREW_PREFIX" ]]; then
-  SCRIPTS_FOLDER="$HOMEBREW_PREFIX/core"
-  TEMPLATE_FOLDER="$HOMEBREW_PREFIX/templates"
+# -------- 📁 Input file locations (Homebrew + Local Compatible) --------
+
+# Try to detect Homebrew install prefix
+if command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar_love_cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/core" ]]; then
+  BASE_DIR="$HOMEBREW_PREFIX"
 else
+  # Local fallback for development or manual use
   BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-  SCRIPTS_FOLDER="$BASE_DIR/core"
-  TEMPLATE_FOLDER="$BASE_DIR/templates"
 fi
 
+SCRIPTS_FOLDER="$BASE_DIR/core"
+TEMPLATE_FOLDER="$BASE_DIR/templates"
+BIN_DIR="$BASE_DIR/bin"
+
+# -------- 📄 Key files --------
 FLAG_VALIDATOR="vault_radar_validator.sh"
 FILE_BUILDER="vault_radar_builder.sh"
 FILE_INPUT="vault_radar_input.json"
@@ -138,6 +142,7 @@ FILE_HEADER="$TEMPLATE_FOLDER/header.tpl"
 FILE_FOOTER="$TEMPLATE_FOLDER/footer.tpl"
 FILE_README="$TEMPLATE_FOLDER/README.tpl"
 
+# -------- 🛡️ Gitignore precedence --------
 GITIGNORE_SOURCES=("$SCRIPTS_FOLDER/.gitignore" "$HOME/.gitignore_global")
 
 # --- Load Flag Validator ---
