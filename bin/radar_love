@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.2.8"
+VERSION="1.2.9"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -103,11 +103,12 @@ check_github_auth() {
 
 # -------- 📁 Input file locations (Homebrew + Local Compatible) --------
 
-# Try to detect Homebrew install prefix
-if command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar_love_cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/core" ]]; then
+# Try RADAR_LOVE_HOME env override first, then Homebrew, then local dev path
+if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
+  BASE_DIR="$RADAR_LOVE_HOME"
+elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar_love_cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/core" ]]; then
   BASE_DIR="$HOMEBREW_PREFIX"
 else
-  # Local fallback for development or manual use
   BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fi
 
