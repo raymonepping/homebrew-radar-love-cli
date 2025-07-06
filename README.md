@@ -2,7 +2,7 @@
 
 > “Cold and frosty morning. There’s not a lot to say. About the things caught in my mind..” — *Oasis*
 
-[![brew-install](https://img.shields.io/badge/brew-install-success-green?logo=homebrew)](https://github.com/raymonepping/radar_love_cli)
+[![brew install](https://img.shields.io/badge/brew--install-success-green?logo=homebrew&style=flat-square)](https://github.com/raymonepping/radar_love_cli)
 [![status](https://img.shields.io/badge/ci-auto--generated-blue?style=flat-square)](./sanity_check_report.md)
 [![badge](https://img.shields.io/badge/radar--ready-yes-critical?logo=githubactions&style=flat-square)](https://www.vaultproject.io/docs/secrets/radar)
 
