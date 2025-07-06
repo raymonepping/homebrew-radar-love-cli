@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.2.0"
+VERSION="1.2.1"
 
 print_version() {
   local tool="$1"; shift
