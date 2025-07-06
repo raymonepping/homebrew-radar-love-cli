@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.2.1"
+VERSION="1.2.4"
 
 REQUIRED_TOOLS=(gh jq awk sed shfmt shellcheck git)
 
