@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.2.10"
+VERSION="1.3.0"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -116,14 +116,14 @@ SCRIPTS_FOLDER="$BASE_DIR/core"
 TEMPLATE_FOLDER="$BASE_DIR/templates"
 BIN_DIR="$BASE_DIR/bin"
 
-# -------- 📄 Key files --------
+# -------- 📄 Key files (Filenames only!) --------
 FLAG_VALIDATOR="vault_radar_validator.sh"
 FILE_BUILDER="vault_radar_builder.sh"
 FILE_INPUT="vault_radar_input.json"
 
-FILE_HEADER="$TEMPLATE_FOLDER/header.tpl"
-FILE_FOOTER="$TEMPLATE_FOLDER/footer.tpl"
-FILE_README="$TEMPLATE_FOLDER/README.tpl"
+FILE_HEADER="header.tpl"
+FILE_FOOTER="footer.tpl"
+FILE_README="README.tpl"
 
 # -------- 🛡️ Gitignore precedence --------
 GITIGNORE_SOURCES=("$SCRIPTS_FOLDER/.gitignore" "$HOME/.gitignore_global")
