@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.0.0"
+VERSION="1.2.0"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -119,10 +119,16 @@ check_github_auth() {
   fi
 }
 
-# -------- 📁 Input file locations --------
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SCRIPTS_FOLDER="$BASE_DIR/core"
-TEMPLATE_FOLDER="$BASE_DIR/templates"
+# -------- 📁 Input file locations (Homebrew-compatible) --------
+HOMEBREW_PREFIX="$(brew --prefix radar_love_cli 2>/dev/null || true)"
+if [[ -d "$HOMEBREW_PREFIX" ]]; then
+  SCRIPTS_FOLDER="$HOMEBREW_PREFIX/core"
+  TEMPLATE_FOLDER="$HOMEBREW_PREFIX/templates"
+else
+  BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  SCRIPTS_FOLDER="$BASE_DIR/core"
+  TEMPLATE_FOLDER="$BASE_DIR/templates"
+fi
 
 FLAG_VALIDATOR="vault_radar_validator.sh"
 FILE_BUILDER="vault_radar_builder.sh"
