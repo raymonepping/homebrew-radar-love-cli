@@ -1,9 +1,74 @@
-# Radar Love CLI
+# radar_love_cli 🔐
 
-Modular, automated secret-scanning pipeline built for GitHub + Vault Radar.
+> “Cold and frosty morning. There’s not a lot to say. About the things caught in my mind..” — *Oasis*
 
-## Structure
-- `bin/`: Main entrypoint
-- `core/`: Supporting modular logic
-- `templates/`: JSON/TPL injection blueprints
-- `test/`: Basic test hooks and validations
+[![brew-install](https://img.shields.io/badge/brew-install-success-green?logo=homebrew)](https://github.com/raymonepping/radar_love_cli)
+[![status](https://img.shields.io/badge/ci-auto--generated-blue?style=flat-square)](./sanity_check_report.md)
+[![badge](https://img.shields.io/badge/radar--ready-yes-critical?logo=githubactions&style=flat-square)](https://www.vaultproject.io/docs/secrets/radar)
+
+---
+
+## 🎯 What Is This?
+
+`radar_love_cli` is a **modular, Homebrew-installable CLI** that lets you simulate realistic code leaks (secrets, PII, etc.) to test secret scanning pipelines with Vault Radar, TruffleHog, Gitleaks, and more.
+
+---
+
+## 🧰 How to Use
+
+```bash
+brew install raymonepping/tap/radar_love_cli
+radar_love --create true --build true --commit true --request true
+
+All flags are optional. This CLI wraps and coordinates a set of deeply integrated scripts.
+
+📂 Structure
+
+.
+├── bin/                 # Main CLI symlink (radar_love)
+├── core/                # Modular bash logic
+│   ├── commit_gh.sh     # GitHub commit helper
+│   ├── validate_env.sh  # Dependency checker
+│   └── ...
+├── templates/           # TPL/JSON banners
+├── test/                # (Reserved for testing)
+├── radar_love_cli.rb    # Homebrew formula
+├── README.md            # This file
+└── .brewinfo            # (Optional brew metadata)
+
+🔑 Key Features
+
+- ✅ One CLI to orchestrate your entire Radar demo
+- 🧪 Includes leak builders, commit triggers, PR scans
+- 📎 Built-in GitHub automation (via gh)
+- 🔍 Environment validator with --validate
+- 🧼 CI-ready with --quiet, --debug, and --status
+
+✨ Example Scenarios
+
+# Minimal demo run with default values
+radar_love
+
+# Full cycle with debug and fresh rebuild
+radar_love --fresh true --build true --commit true --request true --debug compact
+
+# Validate dependencies only
+radar_love --validate
+
+🚧 Flags Reference
+
+All supported flags can be viewed with:
+- radar_love --help
+
+🧠 Philosophy
+"We see things they’ll never see…” — Oasis
+
+This toolkit was born from a simple need: demo secret-scanning tools in the most realistic way possible, without real leaks, with full automation, and with style.
+
+It grew into a modular, CI-aware CLI that now installs via Homebrew.
+Because automation should automate itself. 🚀
+
+> “And as the day was dawning. My plane flew away. With all the things caught in my mind..” — *Oasis*
+
+© 2025 Raymon Epping
+🧠 Powered by radar_love.sh — Born in Part I, battle-tested in Part II, packaged in Part III.
