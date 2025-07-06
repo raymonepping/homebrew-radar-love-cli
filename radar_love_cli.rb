@@ -1,20 +1,16 @@
 class RadarLoveCli < Formula
   desc "CLI toolkit for simulating secret leaks and triggering GitHub PR scans"
   homepage "https://github.com/raymonepping/radar_love_cli"
-  url "https://github.com/raymonepping/radar_love_cli/archive/refs/tags/v1.2.2.tar.gz"
+  url "https://github.com/raymonepping/radar_love_cli/archive/refs/tags/v1.2.3.tar.gz"
   sha256 "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
   license "MIT"
-  version "1.2.2"
+  version "1.2.3"
 
   depends_on "bash"
 
   def install
-    bin.install "bin/radar_love"
-
-    # Install folders used by the CLI at runtime
+    bin.install "bin/radar_love" => "radar_love"
     pkgshare.install "core", "templates"
-
-    # Optionally include README or other docs
     doc.install "README.md"
   end
 
