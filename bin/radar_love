@@ -79,7 +79,6 @@ if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
   exit 0
 fi
 
-
 # Early return for --version or --help
 if [[ "${1:-}" == "--version" ]]; then
   echo "$SCRIPT_NAME v$VERSION — $DESCRIPTION"
