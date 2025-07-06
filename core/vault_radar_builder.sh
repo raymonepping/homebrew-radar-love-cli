@@ -3,7 +3,7 @@ set -euo pipefail
 # Vault_Radar_builder.sh
 # Generate realistic "leak" scripts for Vault Radar demo/testing.
 
-VERSION="1.2.4"
+VERSION="1.2.10"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 RUNID="$(date +%s)-$RANDOM"
@@ -56,6 +56,35 @@ while [[ $# -gt 0 ]]; do
     *) echo "Unknown option: $1"; usage; exit 1 ;;
   esac
 done
+
+# --- Template path resolution (Homebrew, RADAR_LOVE_HOME, local dev) ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PARENT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Resolve header template
+if [[ ! -f "$HEADER_TEMPLATE" ]]; then
+  if [[ -n "${RADAR_LOVE_HOME:-}" && -f "$RADAR_LOVE_HOME/templates/header.tpl" ]]; then
+    HEADER_TEMPLATE="$RADAR_LOVE_HOME/templates/header.tpl"
+  elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar_love_cli 2>/dev/null)" && [[ -f "$HOMEBREW_PREFIX/templates/header.tpl" ]]; then
+    HEADER_TEMPLATE="$HOMEBREW_PREFIX/templates/header.tpl"
+  elif [[ -f "$PARENT_DIR/templates/header.tpl" ]]; then
+    HEADER_TEMPLATE="$PARENT_DIR/templates/header.tpl"
+  fi
+fi
+# Resolve footer template
+if [[ ! -f "$FOOTER_TEMPLATE" ]]; then
+  if [[ -n "${RADAR_LOVE_HOME:-}" && -f "$RADAR_LOVE_HOME/templates/footer.tpl" ]]; then
+    FOOTER_TEMPLATE="$RADAR_LOVE_HOME/templates/footer.tpl"
+  elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar_love_cli 2>/dev/null)" && [[ -f "$HOMEBREW_PREFIX/templates/footer.tpl" ]]; then
+    FOOTER_TEMPLATE="$HOMEBREW_PREFIX/templates/footer.tpl"
+  elif [[ -f "$PARENT_DIR/templates/footer.tpl" ]]; then
+    FOOTER_TEMPLATE="$PARENT_DIR/templates/footer.tpl"
+  fi
+fi
+
+# Validate template presence (fail fast)
+[[ ! -f "$HEADER_TEMPLATE" ]] && { echo "❌ Header template not found: $HEADER_TEMPLATE"; exit 1; }
+[[ ! -f "$FOOTER_TEMPLATE" ]] && { echo "❌ Footer template not found: $FOOTER_TEMPLATE"; exit 1; }
 
 # --- Input Validation ---
 die() { echo "❌ $1" >&2; exit 1; }
