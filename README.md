@@ -23,7 +23,6 @@ radar_love --create true --build true --commit true --request true
 All flags are optional. This CLI wraps and coordinates a set of deeply integrated scripts.
 
 📂 Structure
-
 .
 ├── bin/                 # Main CLI symlink (radar_love)
 ├── core/                # Modular bash logic
