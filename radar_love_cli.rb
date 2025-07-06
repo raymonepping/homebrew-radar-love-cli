@@ -5,7 +5,7 @@ class RadarLoveCli < Formula
   sha256    "fa5a70a3cc9abab5cd87229f0b4bf32a55c095490cc0021f6f4abe2372334093"
 
   license "MIT"
-  version  "1.0.0"
+  version  "1.2.1"
 
   depends_on "bash"
 
