@@ -60,7 +60,6 @@ All supported flags can be viewed with:
 - radar_love --help
 
 🧠 Philosophy
-"We see things they’ll never see…” — Oasis
 
 This toolkit was born from a simple need: demo secret-scanning tools in the most realistic way possible, without real leaks, with full automation, and with style.
 
@@ -70,4 +69,9 @@ Because automation should automate itself. 🚀
 > “And as the day was dawning. My plane flew away. With all the things caught in my mind..” — *Oasis*
 
 © 2025 Raymon Epping
-🧠 Powered by radar_love.sh — Born in Part I, battle-tested in Part II, packaged in Part III (TBD).
+
+🧠 Powered by radar_love.sh — 📚 Related Articles
+
+- 📖 [Part I — From Dream to Demo](https://medium.com/continuous-insights/from-dream-to-demo-building-an-automated-secret-scanning-pipeline-064a64971f64)
+- 🛠️ [Part II — From Vision to Version](https://medium.com/@raymonepping/from-vision-to-version-evolving-radar-love-with-flags-validation-and-ci-swagger-83610d549412)
+- 📦 Part III — Packaging radar_love_cli (TBD)
