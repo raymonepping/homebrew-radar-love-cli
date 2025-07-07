@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.5.2"
+VERSION="1.5.3"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -34,32 +34,28 @@ icon_pr="🔀"
 icon_step="➡️"
 icon_done="🏁"
 
-check_dependencies() {
-  echo "==== 🔍 Validating Environment Dependencies ===="
-  local missing=0
-  local deps=(gh jq awk sed shfmt shellcheck git)
-
-  for cmd in "${deps[@]}"; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-      echo "❌ Missing: $cmd"
-      ((missing++))
-    else
-      echo "🛠️ - Found: $cmd"
-    fi
-  done
-
-  if [[ $missing -gt 0 ]]; then
-    echo "🚨 $missing missing dependencies detected. Please install them and retry."
-    exit 1
-  else
-    echo ""
-    echo "✅ - All dependencies satisfied."
-  fi
-}
-
 if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
-  check_dependencies
-  exit 0
+  VALIDATOR_SCRIPT="$SCRIPTS_FOLDER/vault_radar_validator.sh"
+  if [[ ! -x "$VALIDATOR_SCRIPT" ]]; then
+    echo "❌ Missing or not executable: $VALIDATOR_SCRIPT"
+    exit 1
+  fi
+
+  echo -e "\n==== 🔍 Validating Environment Dependencies ====\n"
+  if bash "$VALIDATOR_SCRIPT"; then
+    echo -e "\n✅ Environment looks good."
+    exit 0
+  else
+    echo -ne "\n❓ Do you want to install missing required tools now? [y/N]: "
+    read -r answer
+    if [[ "$answer" =~ ^[Yy]$ ]]; then
+      echo ""
+      bash "$VALIDATOR_SCRIPT" --install-missing --yes
+    else
+      echo -e "\n🚫 Skipped installation. Exiting."
+    fi
+    exit 0
+  fi
 fi
 
 # Early return for --version or --help
