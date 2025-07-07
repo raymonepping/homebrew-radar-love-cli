@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.5.8"
+VERSION="1.5.9"
 
 INSTALL_MISSING=false
 AUTO_CONFIRM=false
@@ -38,19 +38,17 @@ read_confirm() {
   [[ "$reply" =~ ^[Yy]$ ]]
 }
 
-# ----------------------------
-# 🛠 Check and print formatted status
-# ----------------------------
 for tool in "${REQUIRED_TOOLS[@]}"; do
   if command -v "$tool" >/dev/null 2>&1; then
     printf "✅ %-12s found\n" "$tool"
     continue
   fi
 
-  # macOS fallback: shuf → gshuf
+  # macOS fallback: shuf → gshuf (from coreutils)
   if [[ "$tool" == "shuf" && "$(uname -s)" == "Darwin" ]]; then
     if command -v gshuf >/dev/null 2>&1; then
-      ln -sf "$(command -v gshuf)" /opt/homebrew/bin/shuf
+      # Symlink if not present (needs sudo for /opt/homebrew/bin)
+      sudo ln -sf "$(command -v gshuf)" /opt/homebrew/bin/shuf
       printf "🔁 %-12s gshuf symlinked → shuf\n" "$tool"
       continue
     fi
@@ -67,8 +65,17 @@ for tool in "${REQUIRED_TOOLS[@]}"; do
 
     case "$(uname -s)" in
       Darwin)
-        echo "📦 Installing $tool via Homebrew..."
-        brew install "$tool" || echo "⚠️ Failed to install $tool"
+        if [[ "$tool" == "shuf" ]]; then
+          echo "📦 Installing coreutils via Homebrew (for gshuf/shuf)..."
+          brew install coreutils || echo "⚠️ Failed to install coreutils"
+          if command -v gshuf >/dev/null 2>&1; then
+            sudo ln -sf "$(command -v gshuf)" /opt/homebrew/bin/shuf
+            printf "🔁 %-12s gshuf symlinked → shuf\n" "$tool"
+          fi
+        else
+          echo "📦 Installing $tool via Homebrew..."
+          brew install "$tool" || echo "⚠️ Failed to install $tool"
+        fi
         ;;
       Linux)
         echo "📦 Installing $tool via APT..."
