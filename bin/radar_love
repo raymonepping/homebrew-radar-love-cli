@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.5.7"
+VERSION="1.5.8"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -59,7 +59,7 @@ FILE_FOOTER="footer.tpl"
 FILE_README="README.tpl"
 
 if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
-  VALIDATOR_SCRIPT="$SCRIPTS_FOLDER/vault_radar_validator.sh"
+  VALIDATOR_SCRIPT="$SCRIPTS_FOLDER/validate_env.sh"
   if [[ ! -x "$VALIDATOR_SCRIPT" ]]; then
     echo "❌ Missing or not executable: $VALIDATOR_SCRIPT"
     exit 1
