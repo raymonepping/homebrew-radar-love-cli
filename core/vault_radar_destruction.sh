@@ -55,7 +55,7 @@ GH_REPO="$GITHUB_USER/$REPO_NAME"
 LOCAL_REPO_PATH="./$REPO_NAME"
 
 # --- 2. Print summary ---
-if [[ "$FORCE" == false ]]; then
+if [[ "$FORCE" == false && "$QUIET" == false ]]; then
   cat <<EOF
 
 ===========================================================================
@@ -67,6 +67,7 @@ The following operations will be performed:
   - GitHub repository:  gh repo delete $GH_REPO
   - Local folder:       rm -rf $LOCAL_REPO_PATH
 
+===========================================================================
 EOF
 fi
 
@@ -82,17 +83,24 @@ if [[ "$AUTO_YES" == false && "$FORCE" == false ]]; then
 fi
 
 # --- 4. Remove GitHub repo ---
+GH_DELETE_OK=false
 if gh repo view "$GH_REPO" &>/dev/null; then
   note "Deleting GitHub repository $GH_REPO..."
-  gh repo delete "$GH_REPO" --yes --confirm || warn "Could not delete repo on GitHub."
+  if gh repo delete "$GH_REPO" --yes --confirm; then
+    GH_DELETE_OK=true
+  else
+    warn "Could not delete repo on GitHub."
+  fi
 else
   note "GitHub repo $GH_REPO does not exist or cannot be accessed."
 fi
 
 # --- 5. Remove local folder ---
+FS_DELETE_OK=false
 if [[ -d "$LOCAL_REPO_PATH" ]]; then
   note "Deleting local folder $LOCAL_REPO_PATH..."
   rm -rf "$LOCAL_REPO_PATH"
+  FS_DELETE_OK=true
 else
   note "Local folder $LOCAL_REPO_PATH does not exist."
 fi
@@ -115,3 +123,12 @@ EOF
 echo
 echo "🌪️  The Vault Radar demo '${REPO_NAME}' has been erased from existence."
 echo "🟢 Destruction verified — Wipe that tear away now from your eye."
+
+# --- 7. Optional: Confirm that repo and folder are truly gone ---
+if [[ ! -d "$LOCAL_REPO_PATH" ]] && ! gh repo view "$GH_REPO" &>/dev/null; then
+  echo -e "🌟 All traces gone. Not a cloud in sight."
+else
+  echo -e "⚠️  Some traces might remain. Double check manually."
+fi
+
+exit 0
