@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.5.1"
+VERSION="1.5.2"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -70,7 +70,7 @@ elif [[ "${1:-}" == "--help" ]]; then
   cat <<EOF
 Usage: ./$SCRIPT_NAME [--create true|false] [--build true|false] [--fresh true|false]
                      [--language <lang>] [--scenario <scenario>]
-                     [--commit true|false] [--request true|false]
+                     [--commit true|false] [--request true|false] [--merge-main]
                      [--debug [compact]] [--quiet] [--status] [--help] [--version] [--validate]
 
 Flags:
@@ -79,6 +79,7 @@ Flags:
     --build true|false     Generate demo leak branch/files (default: false)
     --commit true|false    Run commit_gh.sh if present (default: false)
     --request true|false   Trigger PR scan (default: false)
+    --merge-main           Merge the demo/leaky branch into main after all steps
     --status               Only validate flags and show current Git status
     --language <lang>      Builder language for demo (default: bash)
     --scenario <scenario>  Builder scenario for demo (default: AWS)
@@ -183,6 +184,10 @@ parse_flags() {
         ;;
       --status)
         FLAGS_REF[status]="true"
+        shift
+        ;;
+      --merge-main)
+        FLAGS_REF[merge_main]="true"
         shift
         ;;
       --scenario)

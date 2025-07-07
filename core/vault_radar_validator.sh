@@ -17,7 +17,7 @@ validate_flags() {
 
   [[ "$debug" == "compact" ]] && compact=true && _flags_ref[debug]="true"
 
-  VALID_FLAGS=(create build fresh commit request quiet status language scenario debug validate version help repo_name)
+  VALID_FLAGS=(create build fresh commit request quiet status language scenario debug validate version help repo_name merge_main)
 
   # ✅ Unknown flag check (strict match)
   for key in "${!_flags_ref[@]}"; do
