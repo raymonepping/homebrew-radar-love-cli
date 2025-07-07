@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.6.0"
+VERSION="1.6.1"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -99,8 +99,12 @@ Usage:
 
 Subcommands:
     destroy                 Danger zone! Deletes both local folder & GitHub repo for the demo.
+      --repo-name <name>    (required) Name of the repo/folder to destroy
+      --yes                 Skip *all* confirmation prompts (CAUTION!)
+      --quiet               Suppress destruction progress output
 
 Flags:
+    --repo-name <name>      Name for the demo GitHub repo/folder (required for destroy)
     --create true|false     Create (or connect) GitHub repo (default: true)
     --fresh true|false      Remove and recreate the repo/folder if it exists (default: false)
     --build true|false      Generate demo leak branch/files (default: false)
@@ -116,11 +120,15 @@ Flags:
     --help                  Show usage and exit
     --version               Show version and exit
 
+Notes:
+  - The destroy subcommand *must* be used with --repo-name, and will prompt for confirmation unless --yes is supplied.
+  - Use --quiet for less output during any operation.
+  - Most flags default to 'false' unless specified.
+
 🎶 “I'm not like you... I was born on a different Cloud.” — Oasis
 EOF
   exit 0
 fi
-
 
 check_github_auth() {
   if ! gh auth status &>/dev/null; then
