@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.4.3"
+VERSION="1.5.0"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -544,6 +544,20 @@ clean_install_files() {
   cd - >/dev/null
 }
 
+cleanup_files_in_branch() {
+  local branch="$1"
+  git checkout "$branch"
+  git pull origin "$branch"
+  git rm -f header.tpl footer.tpl vault_radar_builder.sh vault_radar_input.json || true
+  if ! git diff --cached --quiet; then
+    git commit -m "chore: remove scaffold/seed files from $branch"
+    git push origin "$branch"
+  fi
+}
+
+# Usage: cleanup_files_in_branch main
+
+
 # -------- MAIN --------
 banner "${icon_push}${icon_ok}${icon_branch} $REPO_NAME: Cloudy Modular Secret Demo Pipeline!"
 
@@ -579,6 +593,11 @@ $COMMIT && commit_gh_if_needed
 
 progress 95
 clean_install_files
+
+# Only clean from main if this is the initial setup, or user confirms
+if git show-ref --verify --quiet refs/heads/main; then
+  cleanup_files_in_branch main
+fi
 
 progress 100
 $REQUEST && trigger_pr_and_scan

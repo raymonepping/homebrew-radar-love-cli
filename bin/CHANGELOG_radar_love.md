@@ -2,7 +2,9 @@
 
 🟣 2025-07-06 21:23:44 — raymon.epping: radar_love bumped from 1.0.0 to 1.0.1
 
-[![version](https://img.shields.io/badge/version-1.4.3-red)](https://github.com/raymonepping)
+[![version](https://img.shields.io/badge/version-1.5.0-red)](https://github.com/raymonepping)
+
+🔵 2025-07-07 11:01:43 — raymon.epping: radar_love bumped from 1.4.3 to 1.5.0
 
 🟣 2025-07-07 10:54:30 — raymon.epping: radar_love bumped from 1.4.2 to 1.4.3
 
