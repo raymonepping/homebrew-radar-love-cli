@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.3.0"
+VERSION="1.4.0"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -518,6 +518,28 @@ trigger_pr_and_scan() {
   cd - >/dev/null
 }
 
+clean_install_files() {
+  local files=(header.tpl footer.tpl vault_radar_builder.sh vault_radar_input.json)
+  local removed=()
+  cd "$PROJECT_FOLDER"
+  for f in "${files[@]}"; do
+    if [[ -f "$f" ]]; then
+      rm -f "$f"
+      removed+=("$f")
+    fi
+  done
+  if (( ${#removed[@]} )); then
+    ok "Cleaned up scaffold files: ${removed[*]}"
+    # Remove from git and commit if necessary
+    git rm -f "${removed[@]}" 2>/dev/null || true
+    if ! git diff --cached --quiet; then
+      git commit -m "chore: remove scaffold/seed files post-setup"
+      git push
+    fi
+  fi
+  cd - >/dev/null
+}
+
 # -------- MAIN --------
 banner "${icon_push}${icon_ok}${icon_branch} $REPO_NAME: Cloudy Modular Secret Demo Pipeline!"
 
@@ -526,8 +548,10 @@ check_github_auth
 
 progress 9
 copy_gitignore
+
 progress 10
 copy_inputs
+
 progress 11
 copy_docs_and_license
 
@@ -536,15 +560,21 @@ $CREATE && create_repo
 
 progress 60
 $BUILD && build_leaky_branch
+
 progress 70
 $BUILD && run_bump_version
+
 progress 80
 $BUILD && run_sanity_check
+
 progress 85
 $BUILD && auto_commit_generated_files
 
 progress 90
 $COMMIT && commit_gh_if_needed
+
+progress 95
+clean_install_files
 
 progress 100
 $REQUEST && trigger_pr_and_scan
