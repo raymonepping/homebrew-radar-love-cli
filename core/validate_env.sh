@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.5.3"
+VERSION="1.5.5"
 INSTALL_MISSING=false
 AUTO_CONFIRM=false
 
@@ -29,39 +29,33 @@ echo -e "\n==== 🔍 Validating Environment Dependencies ====\n"
 
 all_passed=true
 
-# ----------------------------
-# 🧠 Prompt for install
-# ----------------------------
 read_confirm() {
   local tool="$1"
-  if [[ "$AUTO_CONFIRM" == true ]]; then
-    return 0
-  fi
+  if [[ "$AUTO_CONFIRM" == true ]]; then return 0; fi
   echo -n "📦 Do you want to install ${tool}? [y/N]: "
   read -r reply
   [[ "$reply" =~ ^[Yy]$ ]]
 }
 
 # ----------------------------
-# 🛠 Tool check & optional install
+# 🛠 Check and print formatted status
 # ----------------------------
 for tool in "${REQUIRED_TOOLS[@]}"; do
   if command -v "$tool" >/dev/null 2>&1; then
-    echo "🛠️  Found: $tool"
+    printf "✅ %-12s found\n" "$tool"
     continue
   fi
 
   # macOS fallback: shuf → gshuf
   if [[ "$tool" == "shuf" && "$(uname -s)" == "Darwin" ]]; then
     if command -v gshuf >/dev/null 2>&1; then
-      echo "🔁 Found gshuf – creating symlink to shuf..."
       ln -sf "$(command -v gshuf)" /opt/homebrew/bin/shuf
-      echo "✅ Symlink created: shuf → gshuf"
+      printf "🔁 %-12s gshuf symlinked → shuf\n" "$tool"
       continue
     fi
   fi
 
-  echo "❌ Missing: $tool"
+  printf "❌ %-12s missing\n" "$tool"
   all_passed=false
 
   if [[ "$INSTALL_MISSING" == true ]]; then
