@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.5.9"
+VERSION="1.5.10"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -65,7 +65,7 @@ if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
     exit 1
   fi
 
-  if bash "$VALIDATOR_SCRIPT" 2>&1 | tee /dev/tty; then
+  if bash "$VALIDATOR_SCRIPT"; then
     echo -e "\n✅ Environment looks good."
     exit 0
   else
