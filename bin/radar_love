@@ -106,8 +106,8 @@ check_github_auth() {
 # Try RADAR_LOVE_HOME env override first, then Homebrew, then local dev path
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
   BASE_DIR="$RADAR_LOVE_HOME"
-elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar_love_cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/core" ]]; then
-  BASE_DIR="$HOMEBREW_PREFIX"
+elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar-love-cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/share/radar-love-cli/core" ]]; then
+  BASE_DIR="$HOMEBREW_PREFIX/share/radar-love-cli"
 else
   BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fi
