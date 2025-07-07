@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.5.0"
+VERSION="1.5.1"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -555,8 +555,22 @@ cleanup_files_in_branch() {
   fi
 }
 
-# Usage: cleanup_files_in_branch main
+auto_merge_to_main() {
+  local branch="feature/leaky-demo"
+  cd "$PROJECT_FOLDER"
+  # Make sure we're up to date
+  git checkout main
+  git pull origin main
+  git checkout "$branch"
+  git pull origin "$branch"
 
+  # Merge (no-ff to preserve branch history)
+  git checkout main
+  git merge --no-ff "$branch" -m "Merge demo output from $branch"
+  git push origin main
+
+  cd - >/dev/null
+}
 
 # -------- MAIN --------
 banner "${icon_push}${icon_ok}${icon_branch} $REPO_NAME: Cloudy Modular Secret Demo Pipeline!"
@@ -599,9 +613,13 @@ if git show-ref --verify --quiet refs/heads/main; then
   cleanup_files_in_branch main
 fi
 
-progress 100
+# Optional: Only merge if a flag is set (for now, always merges for demo)
+auto_merge_to_main
+
+progress 99
 $REQUEST && trigger_pr_and_scan
 
+progress 100
 sleep 2
 progress 100
 
