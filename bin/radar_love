@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.0.1"
+VERSION="2.0.2"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -58,6 +58,8 @@ FILE_INPUT="vault_radar_input.json"
 FILE_HEADER="header.tpl"
 FILE_FOOTER="footer.tpl"
 FILE_README="README.tpl"
+FILE_SCENARIO_TEMPLATE="vault_radar_scenarios.tpl"
+
 
 # ----------- EARLY HANDLERS (must exit immediately!) -----------
 # Block misuse of --destroy as a flag
@@ -401,7 +403,7 @@ copy_gitignore() {
 # -------- Copy Input Files --------
 copy_inputs() {
   banner "${icon_copy} Copying input files..."
-  for file in "$FILE_BUILDER" "$FILE_INPUT" "$FILE_HEADER" "$FILE_FOOTER"; do
+  for file in "$FILE_BUILDER" "$FILE_INPUT" "$FILE_HEADER" "$FILE_FOOTER" "$FILE_SCENARIO_TEMPLATE"; do
     local src="$SCRIPTS_FOLDER/$file"
     local dst="$PROJECT_FOLDER/$file"
     [[ -f "$src" ]] || fail "Source file not found: $src"
