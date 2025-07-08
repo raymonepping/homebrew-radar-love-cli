@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.17"
+VERSION="1.7.18"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -257,6 +257,10 @@ parse_flags() {
         ;;
       --status)
         FLAGS_REF[status]="true"
+        shift
+        ;;
+      --destroy)
+        FLAGS_REF[destroy]="true"
         shift
         ;;
       --merge-main)

@@ -3,7 +3,7 @@ set -euo pipefail
 # Vault_Radar_builder.sh
 # Generate realistic "leak" scripts for Vault Radar demo/testing.
 
-VERSION="1.7.17"
+VERSION="1.7.18"
 
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
