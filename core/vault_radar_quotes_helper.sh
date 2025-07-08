@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-QUOTES_FILE="${QUOTES_FILE:-./vault_radar_quotes.json}"
+# shellcheck disable=SC2034
+VERSION="1.7.6"
+
+# If QUOTES_FILE is set in the environment, use it. Otherwise, try to resolve relative to *this* script.
+if [[ -z "${QUOTES_FILE:-}" ]]; then
+  # BASH_SOURCE[0] works even when sourced, giving the file path of this script.
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  QUOTES_FILE="$SCRIPT_DIR/vault_radar_quotes.json"
+fi
 
 # Simple snake_case helper for repo names
 to_title_kebab_case() {

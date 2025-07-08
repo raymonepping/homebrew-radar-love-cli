@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# shellcheck disable=SC2034
+VERSION="1.7.6"
+
 # --- Find the base/core script folder ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
   SCRIPTS_FOLDER="$RADAR_LOVE_HOME/core"
