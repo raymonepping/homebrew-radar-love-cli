@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.13"
+VERSION="1.7.14"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -49,39 +49,50 @@ fi
 # Handle --help
 if [[ "${1:-}" == "--help" ]]; then
   cat <<EOF
+${color_cyan}${color_bold}Radar Love CLI — Secret Scanning Demo Pipeline${color_reset}
+${color_bold}Version:${color_reset} $VERSION
+
 Usage:
-  ./$SCRIPT_NAME [flags]
-  ./$SCRIPT_NAME destroy --repo-name <name> [--yes] [--quiet]
+  ${color_yellow}./$SCRIPT_NAME${color_reset} [flags]
+  ${color_yellow}./$SCRIPT_NAME destroy --repo-name <name> [--yes] [--quiet]${color_reset}
 
-Subcommands:
-    destroy                 Danger zone! Deletes both local folder & GitHub repo for the demo.
-      --repo-name <name>    (required) Name of the repo/folder to destroy
-      --yes                 Skip *all* confirmation prompts (CAUTION!)
-      --quiet               Suppress destruction progress output
+${color_green}🚦 Interactive Mode:${color_reset}
+  No flags? We'll guide you step-by-step to set up a new demo project.
 
-Flags:
-    --repo-name <name>      Name for the demo GitHub repo/folder (required for destroy)
-    --create true|false     Create (or connect) GitHub repo (default: true)
-    --fresh true|false      Remove and recreate the repo/folder if it exists (default: false)
+${color_red}🚨 Danger Zone — Destruction:${color_reset}
+  ${color_yellow}destroy${color_reset}         Delete BOTH your local folder & GitHub demo repo.
+    --repo-name <name>  (required) Specify which repo/folder to delete
+    --yes               Skip *all* confirmations (CAUTION!)
+    --quiet             Suppress output for CI/automation
+
+${color_blue}🎛️ Flags:${color_reset}
+    --repo-name <name>      Project/repo name (required for destroy)
+    --create true|false     Create/connect GitHub repo (default: true)
+    --fresh true|false      Remove and recreate if exists (default: false)
     --build true|false      Generate demo leak branch/files (default: false)
-    --commit true|false     Run commit_gh.sh if present (default: false)
+    --commit true|false     Run commit_gh.sh after build (default: false)
     --request true|false    Trigger PR scan (default: false)
-    --merge-main            Merge the demo/leaky branch into main after all steps
-    --status                Only validate flags and show current Git status
-    --language <lang>       Builder language for demo (default: bash)
-    --scenario <scenario>   Builder scenario for demo (default: AWS)
-    --validate              Check for required tools and dependencies
-    --debug [compact]       Print parsed flags; use "compact" for inline display
-    --quiet                 Suppress banner/progress output (for CI/cron)
-    --help                  Show usage and exit
+    --merge-main            Merge demo/leaky branch into main after all steps
+    --status                Only show current Git status and exit
+    --language <lang>       Demo language (default: bash)
+    --scenario <scenario>   Demo scenario (default: AWS)
+    --validate              Check dependencies and required tools
+    --debug [compact]       Print parsed flags; use "compact" for inline
+    --quiet                 Suppress banner/progress output
+    --help                  Show this message and exit
     --version               Show version and exit
 
-Notes:
-  - The destroy subcommand *must* be used with --repo-name, and will prompt for confirmation unless --yes is supplied.
-  - Use --quiet for less output during any operation.
+${color_magenta}💡 Examples:${color_reset}
+  ${color_green}./$SCRIPT_NAME --create true --repo-name "Wonderwall" --build true${color_reset}
+  ${color_green}./$SCRIPT_NAME destroy --repo-name Wonderwall --yes${color_reset}
+
+${color_yellow}Notes:${color_reset}
+  - The destroy subcommand *must* use --repo-name and confirms by default.
+  - Case-sensitive: Type the exact repo name (dashes/casing) to confirm destruction.
+  - Use --quiet for less output (e.g. CI/CD pipelines).
   - Most flags default to 'false' unless specified.
 
-🎶 “I'm not like you... I was born on a different Cloud.” — Oasis
+${color_cyan}🎶 "${color_bold}I'm not like you... I was born on a different Cloud.${color_reset}${color_cyan}" — Oasis${color_reset}
 EOF
   exit 0
 fi
@@ -293,7 +304,6 @@ validate_flags FLAGS
 
 # -------- CONFIGURATION --------
 RAW_REPO_NAME="${FLAGS[repo_name]:-Definitely_Maybe}"
-# REPO_NAME=$(echo "$RAW_REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')
 REPO_NAME=$(to_title_kebab_case "$RAW_REPO_NAME")
 
 DIR="$(pwd)"
