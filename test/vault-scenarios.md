@@ -1,8 +1,6 @@
 # Vault Radar Scenarios
 
-[![](https://img.shields.io/badge/High-3-red)](##high) [![](https://img.shields.io/badge/Medium-1-yellow)](##medium) [![](https://img.shields.io/badge/Low-2-lightgrey)](##low)  
-[![](https://img.shields.io/badge/Non_inclusive-2-green)](##non_inclusive) [![](https://img.shields.io/badge/Pii-2-orange)](##pii) [![](https://img.shields.io/badge/Secret-2-purple)](##secret)   
-
+[![](https://img.shields.io/badge/High-3-red)](##high) [![](https://img.shields.io/badge/Medium-1-yellow)](##medium) [![](https://img.shields.io/badge/Low-2-lightgrey)](##low) [![](https://img.shields.io/badge/Non_inclusive-2-green)](##non_inclusive) [![](https://img.shields.io/badge/Pii-2-orange)](##pii) [![](https://img.shields.io/badge/Secret-2-purple)](##secret) 
 **Total scenarios:** 6
 
 ---
