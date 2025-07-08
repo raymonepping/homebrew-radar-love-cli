@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.11"
+VERSION="1.7.12"
 
 # --- Find the base/core script folder ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
@@ -23,6 +23,8 @@ color_reset=$'\e[0m'
 
 # Safe positional variable
 ARG1="${1:-}"
+
+
 
 # Parse --dry-run from CLI args
 DRY_RUN="false"
