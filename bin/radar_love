@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.15"
+VERSION="1.7.16"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -12,6 +12,7 @@ color_red=$'\e[31m'
 color_green=$'\e[32m'
 color_yellow=$'\e[33m'
 color_blue=$'\e[34m'
+color_magenta=$'\e[35m'
 color_cyan=$'\e[36m'
 color_bold=$'\e[1m'
 color_status=$'\e[37m'
