@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.22"
+VERSION="1.7.23"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -68,10 +68,14 @@ if [[ " $* " =~ " --destroy " ]]; then
 fi
 
 # Handle destroy/destruct/destruction as a subcommand
-if [[ "${1:-}" == "destroy" || "${1:-}" == "destruct" || "${1:-}" == "destruction" ]]; then
+if [[ "${1:-}" == "destroy" ]]; then
   shift
   exec "$SCRIPTS_FOLDER/vault_radar_destruction.sh" "$@"
   exit 0
+elif [[ "${1:-}" =~ ^destruct ]]; then
+  echo "❌ Error: The correct subcommand is 'destroy', not '${1}'."
+  echo "   Example: ./radar_love destroy --repo-name Wonderwall --yes"
+  exit 1
 fi
 
 # Handle --version
@@ -122,6 +126,8 @@ Usage:
 
 Notes:
   - The destroy subcommand *must* use --repo-name and confirms by default.
+    ✅ - Allowed:     ./radar_love destroy --repo-name X
+    ❌ - Not allowed: ./radar_love --destroy --repo-name X
   - Case-sensitive: Type the exact repo name (dashes/casing) to confirm destruction.
   - Use --quiet for less output (e.g. CI/CD pipelines).
   - Most flags default to 'false' unless specified.
