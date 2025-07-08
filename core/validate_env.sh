@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.7.23"
+VERSION="1.7.24"
 
 INSTALL_MISSING=false
 AUTO_CONFIRM=false
@@ -40,7 +40,7 @@ read_confirm() {
 
 for tool in "${REQUIRED_TOOLS[@]}"; do
   if command -v "$tool" >/dev/null 2>&1; then
-    printf "✅ %-12s found\n" "$tool"
+    printf "🛠️ %-12s found\n" "$tool"
     continue
   fi
 
