@@ -3,7 +3,7 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.7.1"
+VERSION="1.7.2"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -55,9 +55,9 @@ done
 # If NO action flags, run the interactive decision tree, then exit
 if [[ "$HAS_ACTION_FLAG" == "false" ]]; then
   if [[ "$HAS_DRY_RUN" == "true" ]]; then
-    exec "$(dirname "$0")/vault_radar_decision_tree.sh" --dry-run
+    exec "$SCRIPTS_FOLDER/vault_radar_decision_tree.sh" --dry-run
   else
-    exec "$(dirname "$0")/vault_radar_decision_tree.sh"
+    exec "$SCRIPTS_FOLDER/vault_radar_decision_tree.sh"
   fi
 fi
 
