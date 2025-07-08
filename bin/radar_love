@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.21"
+VERSION="1.7.22"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -60,8 +60,14 @@ FILE_FOOTER="footer.tpl"
 FILE_README="README.tpl"
 
 # ----------- EARLY HANDLERS (must exit immediately!) -----------
+# Block misuse of --destroy as a flag
+if [[ " $* " =~ " --destroy " ]]; then
+  echo "❌ Error: Use the subcommand 'destroy', not '--destroy'."
+  echo "   Example: ./radar_love destroy --repo-name Wonderwall --yes"
+  exit 1
+fi
 
-# Handle destroy subcommand
+# Handle destroy/destruct/destruction as a subcommand
 if [[ "${1:-}" == "destroy" || "${1:-}" == "destruct" || "${1:-}" == "destruction" ]]; then
   shift
   exec "$SCRIPTS_FOLDER/vault_radar_destruction.sh" "$@"
