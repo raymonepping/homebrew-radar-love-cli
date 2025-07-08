@@ -2,7 +2,7 @@
 # --- top10_validator.sh: Check a script against our Bash Top 10 (Color + Markdown) ---
 
 # shellcheck disable=SC2034
-VERSION="1.7.10"
+VERSION="1.7.11"
 
 # --- Enable strict mode for safety and fail-fast behavior ---
 set -euo pipefail

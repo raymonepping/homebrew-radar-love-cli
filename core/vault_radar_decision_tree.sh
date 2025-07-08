@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.10"
+VERSION="1.7.11"
 
 # --- Find the base/core script folder ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
@@ -95,7 +95,7 @@ main_decision_tree() {
     echo
 
     # Compose the command to show/run
-    RADAR_CMD="./radar_love --create true --repo-name \"$REPO_NAME\" --build true --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE"
+    RADAR_CMD="radar_love --create true --repo-name \"$REPO_NAME\" --build true --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE"
     [[ "$DRY_RUN" == "true" ]] && RADAR_CMD="$RADAR_CMD --dry-run"
 
     echo "Would now run:"

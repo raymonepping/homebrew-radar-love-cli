@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.10"
+VERSION="1.7.11"
 
 # vault_radar_validator.sh
-VERSION="1.7.10"
+VERSION="1.7.11"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 
