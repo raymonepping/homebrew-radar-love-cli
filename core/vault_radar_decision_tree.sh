@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.19"
+VERSION="1.7.20"
 
 # --- Find the base/core script folder ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
@@ -69,6 +69,37 @@ main_decision_tree() {
     CREATION_QUOTE=$(pick_quote "$BAND" "creation")
     echo "🎤 $CREATION_QUOTE"
 
+    # --- Prompt for language (dynamic, deduped from input JSON) ---
+    LANGUAGES=$(jq -r '.leaks[].languages[]' "$SCRIPTS_FOLDER/vault_radar_input.json" | sort -u | xargs)
+    echo
+    echo "Select a language for the demo (${color_yellow}$LANGUAGES${color_reset}):"
+    while true; do
+      read -r LANGUAGE
+      LANGUAGE=$(echo "$LANGUAGE" | tr '[:upper:]' '[:lower:]')
+      MATCH=$(echo "$LANGUAGES" | tr '[:upper:]' '[:lower:]')
+      if echo "$MATCH" | grep -w -q "$LANGUAGE"; then
+        # restore proper casing for flag output (match first in list)
+        LANGUAGE=$(echo "$LANGUAGES" | tr ' ' '\n' | grep -i "^$LANGUAGE\$" | head -1)
+        break
+      fi
+      echo "❌ Invalid language. Please enter one of: $LANGUAGES"
+    done
+
+    # --- Prompt for scenario (dynamic, deduped from input JSON) ---
+    SCENARIOS=$(jq -r '.leaks[].scenario' "$SCRIPTS_FOLDER/vault_radar_input.json" | sort -u | xargs)
+    echo
+    echo "Select a scenario for the demo (${color_yellow}$SCENARIOS${color_reset}):"
+    while true; do
+      read -r SCENARIO
+      SCENARIO_LOWER=$(echo "$SCENARIO" | tr '[:upper:]' '[:lower:]')
+      MATCH=$(echo "$SCENARIOS" | tr '[:upper:]' '[:lower:]')
+      if echo "$MATCH" | grep -w -q "$SCENARIO_LOWER"; then
+        SCENARIO=$(echo "$SCENARIOS" | tr ' ' '\n' | grep -i "^$SCENARIO_LOWER\$" | head -1)
+        break
+      fi
+      echo "❌ Invalid scenario. Please enter one of: $SCENARIOS"
+    done
+
     # Prompt for additional steps, with a line break after each answer
     echo
     echo "Do you want to auto-commit after building? (Y/n)"
@@ -89,13 +120,15 @@ main_decision_tree() {
     # Summary
     echo "🚦 Summary:"
     printf "  Repo name:    ${color_green}%s${color_reset}\n" "$REPO_NAME"
+    echo "  Language:     $LANGUAGE"
+    echo "  Scenario:     $SCENARIO"
     echo "  Commit:       $DO_COMMIT"
     echo "  Trigger PR:   $DO_TRIGGER"
     echo "  Merge branch: $MERGE_YESNO"
     echo
 
     # Compose the command to show/run
-    RADAR_CMD="radar_love --create true --repo-name \"$REPO_NAME\" --build true --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE"
+    RADAR_CMD="radar_love --create true --repo-name \"$REPO_NAME\" --build true --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE --language $LANGUAGE --scenario $SCENARIO"
     [[ "$DRY_RUN" == "true" ]] && RADAR_CMD="$RADAR_CMD --dry-run"
 
     echo "Would now run:"
@@ -123,9 +156,3 @@ main_decision_tree() {
     exit 0
   fi
 }
-
-if [[ "${1:-}" == "--test" ]]; then
-  main_decision_tree
-else
-  main_decision_tree "$@"
-fi
