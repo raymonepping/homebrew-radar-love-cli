@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# --- Find the base/core script folder ---
+if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
+  SCRIPTS_FOLDER="$RADAR_LOVE_HOME/core"
+elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar-love-cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/share/radar-love-cli/core" ]]; then
+  SCRIPTS_FOLDER="$HOMEBREW_PREFIX/share/radar-love-cli/core"
+else
+  SCRIPTS_FOLDER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
+
 # Colors
 color_red=$'\e[31m'
 color_green=$'\e[32m'
@@ -18,12 +27,12 @@ for arg in "$@"; do
   fi
 done
 
-# Source the helper
-source "$(dirname "${BASH_SOURCE[0]}")/vault_radar_quotes_helper.sh"
+# Source the helper (relative to SCRIPTS_FOLDER for maximum reliability!)
+source "$SCRIPTS_FOLDER/vault_radar_quotes_helper.sh"
 
 main_decision_tree() {
   # 1. Validate environment
-  ./validate_env.sh --quiet || { echo "Please install required tools."; exit 1; }
+  "$SCRIPTS_FOLDER/validate_env.sh" --quiet || { echo "Please install required tools."; exit 1; }
 
   # 2. Pick a random band for this session
   BAND=$(pick_random_band)
@@ -79,8 +88,6 @@ main_decision_tree() {
     echo "  Merge branch: $MERGE_YESNO"
     echo
 
-    # Simulate radar_love call
-        # Simulate radar_love call
     # Compose the command to show/run
     RADAR_CMD="./radar_love --create true --repo-name \"$REPO_NAME\" --build true --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE"
     [[ "$DRY_RUN" == "true" ]] && RADAR_CMD="$RADAR_CMD --dry-run"
@@ -95,13 +102,13 @@ main_decision_tree() {
     if [[ -z "${FINAL_CONFIRM}" || "${FINAL_CONFIRM,,}" =~ ^(y|yes)$ ]]; then
       if [[ "$DRY_RUN" == "true" ]]; then
         echo -e "${color_yellow}Dry-run enabled. No changes will be made.${color_reset}"
-        # *** No eval! Just exit ***
         exit 0
       else
         echo -e "${color_blue}Running radar_love...${color_reset}"
         eval "$RADAR_CMD"
       fi
-    else      echo "🚦 Skipped execution. No changes made."
+    else
+      echo "🚦 Skipped execution. No changes made."
       exit 0
     fi
 
