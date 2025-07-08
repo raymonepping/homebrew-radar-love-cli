@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.7.8"
+VERSION="1.7.9"
 
 # Default presets
 TARGET_DIR="."
