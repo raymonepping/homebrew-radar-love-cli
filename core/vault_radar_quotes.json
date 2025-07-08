@@ -1,0 +1,52 @@
+[
+  {
+    "band": "Oasis",
+    "entries": [
+      {
+        "name": "Definitely Maybe",
+        "quote": "You and I are gonna live forever…",
+        "stage": ["start", "creation"]
+      },
+      {
+        "name": "Champagne Supernova",
+        "quote": "Someday you will find me…",
+        "stage": ["end"]
+      },
+      {
+        "name": "Morning Glory",
+        "quote": "Today is gonna be the day…",
+        "stage": ["creation"]
+      },
+      {
+        "name": "Dont Look Back in Anger",
+        "quote": "Wipe that tear away now from your eye.",
+        "stage": ["destruction", "end"]
+      }
+    ]
+  },
+  {
+    "band": "Editors",
+    "entries": [
+      {
+        "name": "All Sparks",
+        "quote": "You're answering questions, That have not yet been asked.",
+        "stage": ["start", "creation"]
+      },
+      {
+        "name": "Papillon",
+        "quote": "It kicks like a sleep twitch!",
+        "stage": ["end"]
+      },
+      {
+        "name": "Smokers Outside the Hospital Doors",
+        "quote": "Someone turn us around, can we start this again?",
+        "stage": ["creation", "destruction"]
+      },
+      {
+        "name": "Eat Raw Meat = Blood Drool",
+        "quote": "If you’re afraid of what you need… look around you, you’re surrounded.",
+        "stage": ["destruction"]
+      }
+    ]
+  }
+]
