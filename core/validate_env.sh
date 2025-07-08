@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.7.16"
+VERSION="1.7.17"
 
 INSTALL_MISSING=false
 AUTO_CONFIRM=false

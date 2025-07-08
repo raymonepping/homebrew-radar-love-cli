@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.16"
+VERSION="1.7.17"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -76,24 +76,18 @@ fi
 
 # Handle --help
 if [[ "${1:-}" == "--help" ]]; then
-  cat <<EOF
-${color_cyan}${color_bold}Radar Love CLI — Secret Scanning Demo Pipeline${color_reset}
-${color_bold}Version:${color_reset} $VERSION
+cat <<EOF
+Radar Love CLI — Secret Scanning Demo Pipeline
+Version: $VERSION
 
 Usage:
-  ${color_yellow}./$SCRIPT_NAME${color_reset} [flags]
-  ${color_yellow}./$SCRIPT_NAME destroy --repo-name <name> [--yes] [--quiet]${color_reset}
+  ./radar_love [flags]
+  ./radar_love destroy --repo-name <name> [--yes] [--quiet]
 
-${color_green}🚦 Interactive Mode:${color_reset}
+🚦 Interactive Mode:
   No flags? We'll guide you step-by-step to set up a new demo project.
 
-${color_red}🚨 Danger Zone — Destruction:${color_reset}
-  ${color_yellow}destroy${color_reset}         Delete BOTH your local folder & GitHub demo repo.
-    --repo-name <name>  (required) Specify which repo/folder to delete
-    --yes               Skip *all* confirmations (CAUTION!)
-    --quiet             Suppress output for CI/automation
-
-${color_blue}🎛️ Flags:${color_reset}
+🎛️ Flags:
     --repo-name <name>      Project/repo name (required for destroy)
     --create true|false     Create/connect GitHub repo (default: true)
     --fresh true|false      Remove and recreate if exists (default: false)
@@ -110,17 +104,23 @@ ${color_blue}🎛️ Flags:${color_reset}
     --help                  Show this message and exit
     --version               Show version and exit
 
-${color_magenta}💡 Examples:${color_reset}
-  ${color_green}./$SCRIPT_NAME --create true --repo-name "Wonderwall" --build true${color_reset}
-  ${color_green}./$SCRIPT_NAME destroy --repo-name Wonderwall --yes${color_reset}
+💡 Examples:
+  ./radar_love --create true --repo-name "Wonderwall" --build true
+  ./radar_love destroy --repo-name Wonderwall --yes
 
-${color_yellow}Notes:${color_reset}
+🚨 Danger Zone — Destruction:
+  destroy                Delete BOTH your local folder & GitHub demo repo.
+    --repo-name <name>   (required) Specify which repo/folder to delete
+    --yes                Skip *all* confirmations (CAUTION!)
+    --quiet              Suppress output for CI/automation
+
+Notes:
   - The destroy subcommand *must* use --repo-name and confirms by default.
   - Case-sensitive: Type the exact repo name (dashes/casing) to confirm destruction.
   - Use --quiet for less output (e.g. CI/CD pipelines).
   - Most flags default to 'false' unless specified.
 
-${color_cyan}🎶 "${color_bold}I'm not like you... I was born on a different Cloud.${color_reset}${color_cyan}" — Oasis${color_reset}
+🎶 "I'm not like you... I was born on a different Cloud." — Oasis
 EOF
   exit 0
 fi
