@@ -98,9 +98,3 @@ validate_flags() {
     fi
   fi
 }
-
-if [[ "${1:-}" == "--test" ]]; then
-  main_decision_tree
-else
-  main_decision_tree "$@"
-fi

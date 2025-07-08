@@ -69,6 +69,40 @@ main_decision_tree() {
     CREATION_QUOTE=$(pick_quote "$BAND" "creation")
     echo "🎤 $CREATION_QUOTE"
 
+    # --- Dynamically load valid languages and scenarios from input file
+    VAULT_INPUT_JSON="$SCRIPTS_FOLDER/vault_radar_input.json"
+    if [[ -f "$VAULT_INPUT_JSON" ]]; then
+      mapfile -t LANGUAGES < <(jq -r '.leaks[].languages[]' "$VAULT_INPUT_JSON" | sort -u)
+      mapfile -t SCENARIOS < <(jq -r '.leaks[].scenario' "$VAULT_INPUT_JSON" | sort -u)
+    else
+      LANGUAGES=(bash docker node python terraform)
+      SCENARIOS=(AWS github inclusivity pii)
+    fi
+
+    # --- Language selection
+    echo
+    echo "Select demo language:"
+    select LANG_CHOICE in "${LANGUAGES[@]}"; do
+      if [[ -n "$LANG_CHOICE" ]]; then
+        LANGUAGE="$LANG_CHOICE"
+        break
+      else
+        echo "Invalid selection. Please pick a language from the list."
+      fi
+    done
+
+    # --- Scenario selection
+    echo
+    echo "Select demo scenario:"
+    select SCENARIO_CHOICE in "${SCENARIOS[@]}"; do
+      if [[ -n "$SCENARIO_CHOICE" ]]; then
+        SCENARIO="$SCENARIO_CHOICE"
+        break
+      else
+        echo "Invalid selection. Please pick a scenario from the list."
+      fi
+    done
+
     # Prompt for additional steps, with a line break after each answer
     echo
     echo "Do you want to auto-commit after building? (Y/n)"
@@ -89,13 +123,15 @@ main_decision_tree() {
     # Summary
     echo "🚦 Summary:"
     printf "  Repo name:    ${color_green}%s${color_reset}\n" "$REPO_NAME"
+    echo "  Language:     $LANGUAGE"
+    echo "  Scenario:     $SCENARIO"
     echo "  Commit:       $DO_COMMIT"
     echo "  Trigger PR:   $DO_TRIGGER"
     echo "  Merge branch: $MERGE_YESNO"
     echo
 
     # Compose the command to show/run
-    RADAR_CMD="radar_love --create true --repo-name \"$REPO_NAME\" --build true --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE"
+    RADAR_CMD="radar_love --create true --repo-name \"$REPO_NAME\" --build true --language \"$LANGUAGE\" --scenario \"$SCENARIO\" --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE"
     [[ "$DRY_RUN" == "true" ]] && RADAR_CMD="$RADAR_CMD --dry-run"
 
     echo "Would now run:"
