@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.1.0"
+VERSION="2.0.1"
 TMP_SUMMARY=""  # Ensure it's defined for strict bash/trap
 
 # --- Robust temp cleanup on exit

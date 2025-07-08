@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.0.0"
+VERSION="2.0.1"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -450,6 +450,21 @@ copy_docs_and_license() {
   done
 }
 
+generate_vault_scenarios_md() {
+  local INPUT_JSON="$PROJECT_FOLDER/vault_radar_input.json"
+  local OUTPUT_MD="$PROJECT_FOLDER/vault-scenarios.md"
+  local TEMPLATE="$PROJECT_FOLDER/vault_radar_scenarios.tpl"
+  local GEN_SCRIPT="$SCRIPTS_FOLDER/vault_generate_scenarios_md.sh"
+
+  if [[ -x "$GEN_SCRIPT" && -f "$INPUT_JSON" && -f "$TEMPLATE" ]]; then
+    log "${icon_step} Generating vault-scenarios.md..."
+    "$GEN_SCRIPT" --input "$INPUT_JSON" --output "$OUTPUT_MD" --template "$TEMPLATE"
+    ok "Generated vault-scenarios.md in $PROJECT_FOLDER"
+  else
+    warn "Scenario doc not generated (missing script or input/template)."
+  fi
+}
+
 # -------- Pre-commit hook for sanity_check --------
 setup_precommit_hook() {
   local HOOK_PATH="$PROJECT_FOLDER/.git/hooks/pre-commit"
@@ -681,6 +696,7 @@ copy_inputs
 
 progress 11
 copy_docs_and_license
+generate_vault_scenarios_md
 
 progress 20
 $CREATE && create_repo
