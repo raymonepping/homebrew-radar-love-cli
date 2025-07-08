@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="2.0.3"
+VERSION="2.0.4"
 TMP_SUMMARY=""
 
 # --- Robust temp cleanup on exit
@@ -38,12 +38,12 @@ EOF
 # --- GitHub-flavored Markdown (GFM) anchor generator
 make_gfm_anchor() {
   local anchor="$1"
-  anchor="${anchor,,}"                      # Lowercase
-  anchor="${anchor// /-}"                   # Spaces to dashes
-  anchor=$(echo "$anchor" | sed 's/[^a-z0-9_-]//g') # Remove all but a-z, 0-9, _ and -
-  anchor=$(echo "$anchor" | sed -E 's/-+/-/g')      # Collapse dashes
-  anchor="${anchor##-}"                     # Remove leading dashes
-  anchor="${anchor%%-}"                     # Remove trailing dashes
+  anchor="${anchor,,}"                             # lowercase
+  anchor="${anchor// /-}"                          # spaces to dashes
+  anchor=$(echo "$anchor" | tr -cd 'a-z0-9-_')     # keep only a-z, 0-9, - and _
+  anchor=$(echo "$anchor" | sed -E 's/-+/-/g')     # collapse multiple dashes
+  anchor="${anchor##-}"                            # trim leading dashes
+  anchor="${anchor%%-}"                            # trim trailing dashes
   echo "$anchor"
 }
 
