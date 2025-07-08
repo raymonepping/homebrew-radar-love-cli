@@ -3,11 +3,24 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.7.0"
+VERSION="1.7.1"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
 # --- Early dispatcher: call decision tree unless action flags are present ---
+# Try RADAR_LOVE_HOME env override first, then Homebrew, then local dev path
+if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
+  BASE_DIR="$RADAR_LOVE_HOME"
+elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar-love-cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/share/radar-love-cli/core" ]]; then
+  BASE_DIR="$HOMEBREW_PREFIX/share/radar-love-cli"
+else
+  BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fi
+
+
+SCRIPTS_FOLDER="$BASE_DIR/core"
+TEMPLATE_FOLDER="$BASE_DIR/templates"
+BIN_DIR="$BASE_DIR/bin"
 
 ACTION_FLAGS=(
   --create 
@@ -79,18 +92,6 @@ icon_done="🏁"
 
 # -------- 📁 Input file locations (Homebrew + Local Compatible) --------
 
-# Try RADAR_LOVE_HOME env override first, then Homebrew, then local dev path
-if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
-  BASE_DIR="$RADAR_LOVE_HOME"
-elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar-love-cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/share/radar-love-cli/core" ]]; then
-  BASE_DIR="$HOMEBREW_PREFIX/share/radar-love-cli"
-else
-  BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-fi
-
-SCRIPTS_FOLDER="$BASE_DIR/core"
-TEMPLATE_FOLDER="$BASE_DIR/templates"
-BIN_DIR="$BASE_DIR/bin"
 
 # -------- 📄 Key files (Filenames only!) --------
 FLAG_VALIDATOR="vault_radar_validator.sh"

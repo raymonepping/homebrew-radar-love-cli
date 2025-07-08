@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # vault_radar_validator.sh
-VERSION="1.7.0"
+VERSION="1.7.1"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 

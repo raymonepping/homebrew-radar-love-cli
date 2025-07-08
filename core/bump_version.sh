@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.0"
+VERSION="1.7.1"
 
 # --- Define Colors for Output ---
 RED='\033[1;31m'
