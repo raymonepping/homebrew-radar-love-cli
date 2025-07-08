@@ -10,51 +10,116 @@
 
 ## 🎯 Purpose
 
-**A flexible, CLI-driven toolkit to simulate real-world code leaks—secrets, PII, and non-inclusive language—designed to test HashiCorp Vault Radar and other scanners.**
+A flexible CLI-driven pipeline that simulates realistic code leaks — secrets, PII, non-inclusive language to test HashiCorp Vault Radar.
+
+> Build reproducible, randomized, multi-language leak scenarios in seconds — from repo to PR scan.
 
 ---
 
 ## ⚙️ How It Works
 
-1. **Customize your builder input:**
-   - `Vault_Radar_input.json`: Add/remove leaks, tweak values, assign languages, set scenario/severity.
-   - Customize headers/footers via `header.tpl` and `footer.tpl`.
+1. **Start the generator:**
 
-2. **Run `radar_love.sh`:**
+   Just run:
+
    ```bash
-   ./radar_love.sh --create true --build true --commit true --request true \
-    --language python --scenario github
+   ./radar_love
+   ```
+
+   This launches interactive mode—where you're prompted to:
+   - 🎤 Name your project (or get a random Oasis-inspired title)
+   - 💻 Pick your preferred language (e.g., bash, python, node, etc.)
+   - 🔐 Choose a leak scenario (AWS, GitHub, PII, Inclusivity...)
+   - ✅ Decide whether to auto-commit and/or trigger PR scans
+   - 🤖 Optionally merge the leaky branch into `main`
+
+   Example of what it might run behind the scenes:
+
+   ```bash
+   radar_love --create true --repo-name "Wonderwall" \
+     --build true --language "bash" --scenario "AWS" \
+     --commit true --request true --merge-main
+   ```
+
+2. **Dependencies are checked for you:**
+
+   Before anything starts, it runs a sanity check:
+   ```
+   🧪 Checking tools: gh jq awk sed shfmt shellcheck git shuf
+   ✅ All dependencies satisfied.
+   ```
+
+3. **Files are auto-generated for the selected language/scenario:**
+
+   ```
+   📁 Fuckin-In-The-Bushes/
+   ├── Vault_Radar_trigger.sh         # The leak simulation
+   ├── Vault_Radar_input.json         # Your input definition
+   ├── Vault_Radar_leaks_report.md    # Markdown summary
+   ├── Vault_Radar_cleanup.sh         # Cleanup script
+   └── sanity_check_report.md         # Lint output (if enabled)
+   ```
+
+4. **You can also run it manually with flags:**
+
+   ```bash
+   ./radar_love --repo-name "Wonderwall" \
+     --build true --language python --scenario github \
+     --commit true --request true --merge-main
+   ```
+
+---
 
 Available flags:
-| Flag         | Description                                                            |
-| ------------ | ---------------------------------------------------------------------- |
-| `--create`   | Create/connect GitHub repo (default: true)                             |
-| `--fresh`    | Reset the demo folder/repo if it already exists (default: false)       |
-| `--build`    | Build the demo leak files and scripts (default: false)                 |
-| `--commit`   | Commit the generated files via `commit_gh.sh` (default: false)         |
-| `--request`  | Trigger PR scan after commit (default: false)                          |
-| `--language` | Builder language (`bash`, `python`, `node`, `terraform`, `dockerfile`) |
-| `--scenario` | Leak scenario (`AWS`, `PII`, etc.)                                     |
-| `--debug`    | Print validated flag summary (use `--debug compact` for inline format) |
-| `--quiet`    | Silent mode — skip banners, ideal for cron or automation               |
-| `--status`   | Only validate flags and show current git status — exit immediately     |
-| `--version`  | Print version number                                                   |
-| `--help`     | Show usage help                                                        |
+| Flag         | Description                                                                 |
+|--------------|-----------------------------------------------------------------------------|
+| `--repo-name`| (Required for create/destroy) Name of the GitHub repo                       |
+| `--create`   | Create/connect GitHub repo (default: true)                                  |
+| `--fresh`    | Recreate the repo/folder if it exists (default: false)                      |
+| `--build`    | Generate randomized demo files and commits (default: false)                 |
+| `--commit`   | Run `commit_gh.sh` to stage/commit changes (default: false)                 |
+| `--request`  | Trigger GitHub PR scan (default: false)                                     |
+| `--merge-main`| Merge demo branch back into main                                           |
+| `--status`   | Only show current git status and exit                                       |
+| `--language` | Select language (bash, python, node, terraform, dockerfile)                 |
+| `--scenario` | Focused scenario (`AWS`, `PII`, `GitHub`, etc.)                             |
+| `--validate` | Validate preconditions & dependencies                                       |
+| `--debug`    | Show parsed flags; `--debug compact` for inline format                      |
+| `--quiet`    | Suppress output, ideal for automation                                       |
+| `--help`     | Show usage help                                                             |
+| `--version`  | Print CLI version                                                           |
 
-📦 Output Files
+---
 
-Vault_Radar_trigger.sh         → Bash leak demo
-Vault_Radar_trigger.py         → Python leak demo
-Vault_Radar_trigger.js         → Node.js leak demo
-Vault_Radar_trigger.tf         → Terraform leak demo
-Vault_Radar_trigger.Dockerfile → Dockerfile leak demo
+## 🧪 Example Runs
 
-Vault_Radar_input.json         → Source input
-Vault_Radar_leaks_report.md    → Human-readable summary
-Vault_Radar_cleanup.sh         → Cleanup utility
-Vault_Radar_build.log          → Builder log
-sanity_check_report.md         → Optional, only with --lint
+```bash
+# Run all with GitHub integration
+./radar_love.sh --repo-name live-forever --build true --commit true --request true
 
+# Just generate locally
+./radar_love.sh --repo-name champagne --create false --build true
+
+# Clean up local + GitHub
+./radar_love.sh destroy --repo-name champagne --yes
+```
+
+---
+
+## 📦 Output Files
+
+| File                         | Description                               |
+|------------------------------|-------------------------------------------|
+| `Vault_Radar_trigger.sh`     | Bash leak demo                            |
+| `Vault_Radar_trigger.py`     | Python leak demo                          |
+| `Vault_Radar_trigger.js`     | Node leak demo                            |
+| `Vault_Radar_trigger.tf`     | Terraform leak demo                       |
+| `Vault_Radar_trigger.Dockerfile` | Dockerfile leak demo                  |
+| `vault-scenarios.md`         | Auto-generated markdown from scenarios    |
+| `Vault_Radar_leaks_report.md`| Generated report of leaks                 |
+| `Vault_Radar_cleanup.sh`     | Clean-up script                           |
+| `Vault_Radar_build.log`      | Builder log                               |
+| `sanity_check_report.md`     | Optional, if linting is enabled           |
 
 🚦 Example Usage:
 
@@ -90,4 +155,20 @@ Works with: HashiCorp Vault Radar (https://www.hashicorp.com/en/products/vault/h
 
 📅 Auto-generated by radar_love.sh on {{DATE}}
 
-© 2025 Raymon Epping — Open-source demo framework for secret scanning
+---
+
+## 🧠 Learn More
+
+- [🔐 Vault Radar](https://www.hashicorp.com/products/vault/hcp-vault-radar)
+- [🧠 Blog: Part   I: Radar_Love](https://medium.com/continuous-insights/from-dream-to-demo-building-an-automated-secret-scanning-pipeline-064a64971f64)
+- [🧠 Blog: Part  II: Radar_Love](https://medium.com/continuous-insights/part-ii-real-time-bash-automation-version-bumps-and-living-docs-battle-tested-and-d8edf88b1d5c)
+- [🧠 Blog: Part III: Radar_Love](https://medium.com/@raymonepping/radar-love-part-iii-brewing-a-cli-revolution-12a054708d2f)
+
+---
+
+🎶 “I’m not like you… I was born on a different cloud.” — *Oasis*
+© 2025 Raymon Epping — Secret scanning demo CLI, proudly open source.
+
+---
+
+📅 Auto-generated on {{DATE}}  

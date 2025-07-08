@@ -175,15 +175,6 @@ EOM
     echo "</details>" >> "$OUTPUT"
     echo "" >> "$OUTPUT"
   done
-
-  # Table of Contents (at bottom)
-  log info "Writing Table of Contents..."
-  echo "## Table of Contents" >> "$OUTPUT"
-  for a in "${ANCHORS[@]}"; do
-    IFS='|' read -r header_text anchor sev cat langs <<< "$a"
-    echo "- [$header_text](#$anchor)" >> "$OUTPUT"
-  done
-  echo "" >> "$OUTPUT"
   log done "$OUTPUT generated"
 }
 
