@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="2.0.2"
-TMP_SUMMARY=""  # Ensure it's defined for strict bash/trap
+VERSION="2.0.3"
+TMP_SUMMARY=""
 
 # --- Robust temp cleanup on exit
 trap '[[ -n "$TMP_SUMMARY" && -f "$TMP_SUMMARY" ]] && rm -f "$TMP_SUMMARY"' EXIT
@@ -33,6 +33,18 @@ Options:
 
 Generates a rich Markdown scenario report from Vault Radar input.
 EOF
+}
+
+# --- GitHub-flavored Markdown (GFM) anchor generator
+make_gfm_anchor() {
+  local anchor="$1"
+  anchor="${anchor,,}"                      # Lowercase
+  anchor="${anchor// /-}"                   # Spaces to dashes
+  anchor=$(echo "$anchor" | sed 's/[^a-z0-9_-]//g') # Remove all but a-z, 0-9, _ and -
+  anchor=$(echo "$anchor" | sed -E 's/-+/-/g')      # Collapse dashes
+  anchor="${anchor##-}"                     # Remove leading dashes
+  anchor="${anchor%%-}"                     # Remove trailing dashes
+  echo "$anchor"
 }
 
 parse_flags() {
@@ -102,15 +114,16 @@ main() {
     label=$(echo "$s" | jq -r '.label')
     severity=$(echo "$s" | jq -r '.severity')
     category=$(echo "$s" | jq -r '.category')
+    scenario=$(echo "$s" | jq -r '.scenario')
+    header_text="$label ($category / $scenario)"
+    anchor=$(make_gfm_anchor "$header_text")
     languages=$(echo "$s" | jq -r '.languages | join(", ")')
-    anchor=${label//[^a-zA-Z0-9]/-}
-    anchor=${anchor,,}
     emoji="${SEV_EMOJI[$severity]}"
     cat_emoji="${CAT_EMOJI[$category]}"
-    ANCHORS+=("$label|$anchor|$severity|$category|$languages")
+    ANCHORS+=("$header_text|$anchor|$severity|$category|$languages")
 
     # summary table row
-    echo "| [$label](#$anchor) | $emoji $severity | $cat_emoji $category | $languages |" >> "$TMP_SUMMARY"
+    echo "| [$header_text](#$anchor) | $emoji $severity | $cat_emoji $category | $languages |" >> "$TMP_SUMMARY"
   done
 
   cat "$TMP_SUMMARY" >> "$OUTPUT"
@@ -124,30 +137,30 @@ main() {
     echo "<summary>$sev_emoji <b>${sev^} Severity</b></summary>" >> "$OUTPUT"
     echo "" >> "$OUTPUT"
     for ((i=0; i<length; i++)); do
-      local s label anchor value languages category author source demo_notes scenario cat_emoji sev_badge cat_badge
+      local s label anchor value languages category author source demo_notes scenario cat_emoji sev_badge cat_badge header_text
       s=$(echo "$scenarios" | jq -c ".[$i]")
       [[ $(echo "$s" | jq -r '.severity') != "$sev" ]] && continue
       label=$(echo "$s" | jq -r '.label')
-      anchor=${label//[^a-zA-Z0-9]/-}
-      anchor=${anchor,,}
+      category=$(echo "$s" | jq -r '.category')
+      scenario=$(echo "$s" | jq -r '.scenario')
+      header_text="$label ($category / $scenario)"
+      anchor=$(make_gfm_anchor "$header_text")
       value=$(echo "$s" | jq -r '.value')
       languages=$(echo "$s" | jq -r '.languages | join(", ")')
-      category=$(echo "$s" | jq -r '.category')
       author=$(echo "$s" | jq -r '.author')
       source=$(echo "$s" | jq -r '.source')
       demo_notes=$(echo "$s" | jq -r '.demo_notes')
-      scenario=$(echo "$s" | jq -r '.scenario')
       cat_emoji="${CAT_EMOJI[$category]}"
       sev_badge="![](https://img.shields.io/badge/${sev^}-$sev-red)"
       cat_badge="![](https://img.shields.io/badge/${category^}-${category}-blue)"
 
       # Markdown output for this scenario
       cat <<EOM >> "$OUTPUT"
-### $label $emoji <a id="$anchor"></a>
+### $header_text ${SEV_EMOJI[$sev]}
 
 - **Value:** \`$value\`
 - **Languages:** $languages
-- **Severity:** $severity $sev_badge
+- **Severity:** $sev $sev_badge
 - **Category:** $category $cat_emoji $cat_badge
 - **Author:** $author
 - **Source:** $source
@@ -167,8 +180,8 @@ EOM
   log info "Writing Table of Contents..."
   echo "## Table of Contents" >> "$OUTPUT"
   for a in "${ANCHORS[@]}"; do
-    IFS='|' read -r label anchor sev cat langs <<< "$a"
-    echo "- [$label](#$anchor)" >> "$OUTPUT"
+    IFS='|' read -r header_text anchor sev cat langs <<< "$a"
+    echo "- [$header_text](#$anchor)" >> "$OUTPUT"
   done
   echo "" >> "$OUTPUT"
   log done "$OUTPUT generated"
