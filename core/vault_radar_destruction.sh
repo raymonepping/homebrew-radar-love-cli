@@ -89,7 +89,7 @@ fi
 GH_DELETE_OK=false
 if gh repo view "$GH_REPO" &>/dev/null; then
   note "Deleting GitHub repository $GH_REPO..."
-  if gh repo delete "$GH_REPO" --yes --confirm; then
+  if gh repo delete "$GH_REPO" --yes; then
     GH_DELETE_OK=true
   else
     warn "Could not delete repo on GitHub."
