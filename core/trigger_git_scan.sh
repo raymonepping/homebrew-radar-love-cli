@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.7.14"
+VERSION="1.7.15"
 
 BRANCH="initial-pr-scan"
 CLEANUP=false

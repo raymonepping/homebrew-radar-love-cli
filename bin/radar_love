@@ -2,9 +2,36 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.14"
+VERSION="1.7.15"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
+
+# --- COLOR & FORMAT DEFINITIONS ---
+color_reset=$'\e[0m'
+color_red=$'\e[31m'
+color_green=$'\e[32m'
+color_yellow=$'\e[33m'
+color_blue=$'\e[34m'
+color_cyan=$'\e[36m'
+color_bold=$'\e[1m'
+color_status=$'\e[37m'
+
+shake_on=$'\e[5m'
+shake_off=$'\e[25m'
+
+# --- EMOJI ---
+icon_ok="☁️"
+icon_err="❌"
+icon_warn="⚠️"
+icon_folder="📁"
+icon_branch="🌱"
+icon_push="🚀"
+icon_copy="📋"
+icon_git="🔧"
+icon_lock="🔒"
+icon_pr="🔀"
+icon_step="➡️"
+icon_done="🏁"
 
 # --- Try RADAR_LOVE_HOME env override first, then Homebrew, then local dev path ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
@@ -120,33 +147,6 @@ if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
     exit 0
   fi
 fi
-
-# --- COLOR & FORMAT DEFINITIONS ---
-color_reset=$'\e[0m'
-color_red=$'\e[31m'
-color_green=$'\e[32m'
-color_yellow=$'\e[33m'
-color_blue=$'\e[34m'
-color_cyan=$'\e[36m'
-color_bold=$'\e[1m'
-color_status=$'\e[37m'
-
-shake_on=$'\e[5m'
-shake_off=$'\e[25m'
-
-# --- EMOJI ---
-icon_ok="☁️"
-icon_err="❌"
-icon_warn="⚠️"
-icon_folder="📁"
-icon_branch="🌱"
-icon_push="🚀"
-icon_copy="📋"
-icon_git="🔧"
-icon_lock="🔒"
-icon_pr="🔀"
-icon_step="➡️"
-icon_done="🏁"
 
 # --- Utility Functions ---
 check_github_auth() {
