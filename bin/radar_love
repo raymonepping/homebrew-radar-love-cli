@@ -3,9 +3,52 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.6.5"
+VERSION="1.7.0"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
+
+# --- Early dispatcher: call decision tree unless action flags are present ---
+
+ACTION_FLAGS=(
+  --create 
+  --repo-name 
+  --build 
+  --commit 
+  --request 
+  --merge-main 
+  --fresh 
+  --language 
+  --scenario 
+  --status 
+  --quiet 
+  --debug 
+  --validate 
+  --destroy 
+  --yes
+  )
+HAS_ACTION_FLAG="false"
+HAS_DRY_RUN="false"
+
+for arg in "$@"; do
+  for flag in "${ACTION_FLAGS[@]}"; do
+    if [[ "$arg" == "$flag" ]]; then
+      HAS_ACTION_FLAG="true"
+      break 2
+    fi
+  done
+  [[ "$arg" == "--dry-run" ]] && HAS_DRY_RUN="true"
+done
+
+# If NO action flags, run the interactive decision tree, then exit
+if [[ "$HAS_ACTION_FLAG" == "false" ]]; then
+  if [[ "$HAS_DRY_RUN" == "true" ]]; then
+    exec "$(dirname "$0")/vault_radar_decision_tree.sh" --dry-run
+  else
+    exec "$(dirname "$0")/vault_radar_decision_tree.sh"
+  fi
+fi
+
+# --- From here, your normal radar_love.sh logic continues as always! ---
 
 # -------- COLOR & FORMAT DEFINITIONS --------
 color_reset=$'\e[0m'

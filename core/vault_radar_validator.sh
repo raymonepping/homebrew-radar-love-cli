@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # vault_radar_validator.sh
-VERSION="1.6.5"
+VERSION="1.7.0"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 
@@ -17,7 +17,26 @@ validate_flags() {
 
   [[ "$debug" == "compact" ]] && compact=true && _flags_ref[debug]="true"
 
-  VALID_FLAGS=(create build fresh commit request quiet status language scenario debug validate version help repo_name merge_main yes destroy)
+  VALID_FLAGS=(
+    create 
+    build 
+    fresh 
+    commit 
+    request 
+    quiet 
+    status 
+    language 
+    scenario 
+    debug 
+    validate 
+    version 
+    help 
+    repo_name 
+    merge_main 
+    yes 
+    destroy 
+    dry_run
+  )
 
   # ✅ Unknown flag check (strict match)
   for key in "${!_flags_ref[@]}"; do
@@ -26,8 +45,8 @@ validate_flags() {
     fi
   done
 
-  # ✅ Boolean validation
-  for flag in create build fresh commit request quiet status yes; do
+  # ✅ Boolean validation (INCLUDES DRY_RUN!)
+  for flag in create build fresh commit request quiet status yes dry_run; do
     _flags_ref[$flag]="${_flags_ref[$flag]:-false}"
     if [[ "${_flags_ref[$flag]}" != "true" && "${_flags_ref[$flag]}" != "false" ]]; then
       log_error "Invalid boolean for --$flag: ${_flags_ref[$flag]}"
@@ -47,7 +66,7 @@ validate_flags() {
     _flags_ref[build]="true"
   fi
 
-  # === DANGER ZONE: destroy mode validation ===
+  # 🧨 DANGER ZONE: destroy mode validation 
   if [[ "${_flags_ref[destroy]:-false}" == "true" ]]; then
     if [[ -z "${_flags_ref[repo_name]:-}" ]]; then
       log_error "--repo-name is required when using destroy!"
