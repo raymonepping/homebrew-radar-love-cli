@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.12"
+VERSION="1.7.13"
 
 # If QUOTES_FILE is set in the environment, use it. Otherwise, try to resolve relative to *this* script.
 if [[ -z "${QUOTES_FILE:-}" ]]; then

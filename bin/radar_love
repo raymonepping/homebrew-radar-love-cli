@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="1.7.12"
+VERSION="1.7.13"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -18,6 +18,8 @@ fi
 SCRIPTS_FOLDER="$BASE_DIR/core"
 TEMPLATE_FOLDER="$BASE_DIR/templates"
 BIN_DIR="$BASE_DIR/bin"
+
+source "$SCRIPTS_FOLDER/vault_radar_quotes_helper.sh"
 
 ARG1="${1:-}"
 
@@ -291,7 +293,9 @@ validate_flags FLAGS
 
 # -------- CONFIGURATION --------
 RAW_REPO_NAME="${FLAGS[repo_name]:-Definitely_Maybe}"
-REPO_NAME=$(echo "$RAW_REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')
+# REPO_NAME=$(echo "$RAW_REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')
+REPO_NAME=$(to_title_kebab_case "$RAW_REPO_NAME")
+
 DIR="$(pwd)"
 PROJECT_FOLDER="$DIR/$REPO_NAME"
 
