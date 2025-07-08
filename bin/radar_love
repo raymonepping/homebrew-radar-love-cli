@@ -3,12 +3,11 @@ set -euo pipefail
 
 # === radar_love.sh Metadata ===
 # shellcheck disable=SC2034
-VERSION="1.7.6"
+VERSION="1.7.7"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
-# --- Early dispatcher: call decision tree unless action flags are present ---
-# Try RADAR_LOVE_HOME env override first, then Homebrew, then local dev path
+# --- Try RADAR_LOVE_HOME env override first, then Homebrew, then local dev path ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
   BASE_DIR="$RADAR_LOVE_HOME"
 elif command -v brew &>/dev/null && HOMEBREW_PREFIX="$(brew --prefix radar-love-cli 2>/dev/null)" && [[ -d "$HOMEBREW_PREFIX/share/radar-love-cli/core" ]]; then
@@ -17,10 +16,125 @@ else
   BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fi
 
-
 SCRIPTS_FOLDER="$BASE_DIR/core"
 TEMPLATE_FOLDER="$BASE_DIR/templates"
 BIN_DIR="$BASE_DIR/bin"
+
+# -------- 📄 Key files (Filenames only!) --------
+FLAG_VALIDATOR="vault_radar_validator.sh"
+FILE_BUILDER="vault_radar_builder.sh"
+FILE_INPUT="vault_radar_input.json"
+FILE_HEADER="header.tpl"
+FILE_FOOTER="footer.tpl"
+FILE_README="README.tpl"
+
+# ----------- EARLY HANDLERS (must exit immediately!) -----------
+
+# Handle destroy subcommand
+if [[ "$1" == "destroy" || "$1" == "destruct" || "$1" == "destruction" ]]; then
+  shift
+  exec "$SCRIPTS_FOLDER/vault_radar_destruction.sh" "$@"
+  exit 0
+fi
+
+# Handle --version
+if [[ "${1:-}" == "--version" ]]; then
+  echo "$SCRIPT_NAME v$VERSION — $DESCRIPTION"
+  exit 0
+fi
+
+# Handle --help
+if [[ "${1:-}" == "--help" ]]; then
+  cat <<EOF
+Usage:
+  ./$SCRIPT_NAME [flags]
+  ./$SCRIPT_NAME destroy --repo-name <name> [--yes] [--quiet]
+
+Subcommands:
+    destroy                 Danger zone! Deletes both local folder & GitHub repo for the demo.
+      --repo-name <name>    (required) Name of the repo/folder to destroy
+      --yes                 Skip *all* confirmation prompts (CAUTION!)
+      --quiet               Suppress destruction progress output
+
+Flags:
+    --repo-name <name>      Name for the demo GitHub repo/folder (required for destroy)
+    --create true|false     Create (or connect) GitHub repo (default: true)
+    --fresh true|false      Remove and recreate the repo/folder if it exists (default: false)
+    --build true|false      Generate demo leak branch/files (default: false)
+    --commit true|false     Run commit_gh.sh if present (default: false)
+    --request true|false    Trigger PR scan (default: false)
+    --merge-main            Merge the demo/leaky branch into main after all steps
+    --status                Only validate flags and show current Git status
+    --language <lang>       Builder language for demo (default: bash)
+    --scenario <scenario>   Builder scenario for demo (default: AWS)
+    --validate              Check for required tools and dependencies
+    --debug [compact]       Print parsed flags; use "compact" for inline display
+    --quiet                 Suppress banner/progress output (for CI/cron)
+    --help                  Show usage and exit
+    --version               Show version and exit
+
+Notes:
+  - The destroy subcommand *must* be used with --repo-name, and will prompt for confirmation unless --yes is supplied.
+  - Use --quiet for less output during any operation.
+  - Most flags default to 'false' unless specified.
+
+🎶 “I'm not like you... I was born on a different Cloud.” — Oasis
+EOF
+  exit 0
+fi
+
+# Handle --validate / --deps (explicit validation, not the wizard)
+if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
+  VALIDATOR_SCRIPT="$SCRIPTS_FOLDER/validate_env.sh"
+  if [[ ! -x "$VALIDATOR_SCRIPT" ]]; then
+    echo "❌ Missing or not executable: $VALIDATOR_SCRIPT"
+    exit 1
+  fi
+
+  if bash "$VALIDATOR_SCRIPT"; then
+    echo -e "\n✅ Environment looks good."
+    exit 0
+  else
+    echo -ne "\n❓ Do you want to install missing required tools now? [y/N]: "
+    read -r answer
+    if [[ "$answer" =~ ^[Yy]$ ]]; then
+      echo ""
+      bash "$VALIDATOR_SCRIPT" --install-missing --yes
+    else
+      echo -e "\n🚫 Skipped installation. Exiting."
+    fi
+    exit 0
+  fi
+fi
+
+# --- COLOR & FORMAT DEFINITIONS ---
+color_reset=$'\e[0m'
+color_red=$'\e[31m'
+color_green=$'\e[32m'
+color_yellow=$'\e[33m'
+color_blue=$'\e[34m'
+color_cyan=$'\e[36m'
+color_bold=$'\e[1m'
+color_status=$'\e[37m'
+
+shake_on=$'\e[5m'
+shake_off=$'\e[25m'
+
+# --- EMOJI ---
+icon_ok="☁️"
+icon_err="❌"
+icon_warn="⚠️"
+icon_folder="📁"
+icon_branch="🌱"
+icon_push="🚀"
+icon_copy="📋"
+icon_git="🔧"
+icon_lock="🔒"
+icon_pr="🔀"
+icon_step="➡️"
+icon_done="🏁"
+
+# ----------- DECISION TREE HANDOFF IF NEEDED -----------
 
 ACTION_FLAGS=(
   --create 
@@ -60,127 +174,6 @@ if [[ "$HAS_ACTION_FLAG" == "false" ]]; then
     exec "$SCRIPTS_FOLDER/vault_radar_decision_tree.sh"
   fi
 fi
-
-# --- From here, your normal radar_love.sh logic continues as always! ---
-
-# -------- COLOR & FORMAT DEFINITIONS --------
-color_reset=$'\e[0m'
-color_red=$'\e[31m'
-color_green=$'\e[32m'
-color_yellow=$'\e[33m'
-color_blue=$'\e[34m'
-color_cyan=$'\e[36m'
-color_bold=$'\e[1m'
-color_status=$'\e[37m'
-
-shake_on=$'\e[5m'
-shake_off=$'\e[25m'
-
-# -------- EMOJI --------
-icon_ok="☁️"
-icon_err="❌"
-icon_warn="⚠️"
-icon_folder="📁"
-icon_branch="🌱"
-icon_push="🚀"
-icon_copy="📋"
-icon_git="🔧"
-icon_lock="🔒"
-icon_pr="🔀"
-icon_step="➡️"
-icon_done="🏁"
-
-# -------- 📁 Input file locations (Homebrew + Local Compatible) --------
-
-
-# -------- 📄 Key files (Filenames only!) --------
-FLAG_VALIDATOR="vault_radar_validator.sh"
-FILE_BUILDER="vault_radar_builder.sh"
-FILE_INPUT="vault_radar_input.json"
-
-FILE_HEADER="header.tpl"
-FILE_FOOTER="footer.tpl"
-FILE_README="README.tpl"
-
-if [[ "$1" == "destroy" || "$1" == "destruct" || "$1" == "destruction" ]]; then
-  shift
-  exec "$SCRIPTS_FOLDER/vault_radar_destruction.sh" "$@"
-  exit 0
-fi
-
-if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
-  VALIDATOR_SCRIPT="$SCRIPTS_FOLDER/validate_env.sh"
-  if [[ ! -x "$VALIDATOR_SCRIPT" ]]; then
-    echo "❌ Missing or not executable: $VALIDATOR_SCRIPT"
-    exit 1
-  fi
-
-  if bash "$VALIDATOR_SCRIPT"; then
-    echo -e "\n✅ Environment looks good."
-    exit 0
-  else
-    echo -ne "\n❓ Do you want to install missing required tools now? [y/N]: "
-    read -r answer
-    if [[ "$answer" =~ ^[Yy]$ ]]; then
-      echo ""
-      bash "$VALIDATOR_SCRIPT" --install-missing --yes
-    else
-      echo -e "\n🚫 Skipped installation. Exiting."
-    fi
-    exit 0
-  fi
-fi
-
-# Early return for --version or --help
-if [[ "${1:-}" == "--version" ]]; then
-  echo "$SCRIPT_NAME v$VERSION — $DESCRIPTION"
-  exit 0
-elif [[ "${1:-}" == "--help" ]]; then
-  cat <<EOF
-Usage:
-  ./$SCRIPT_NAME [flags]
-  ./$SCRIPT_NAME destroy --repo-name <name> [--yes] [--quiet]
-
-Subcommands:
-    destroy                 Danger zone! Deletes both local folder & GitHub repo for the demo.
-      --repo-name <name>    (required) Name of the repo/folder to destroy
-      --yes                 Skip *all* confirmation prompts (CAUTION!)
-      --quiet               Suppress destruction progress output
-
-Flags:
-    --repo-name <name>      Name for the demo GitHub repo/folder (required for destroy)
-    --create true|false     Create (or connect) GitHub repo (default: true)
-    --fresh true|false      Remove and recreate the repo/folder if it exists (default: false)
-    --build true|false      Generate demo leak branch/files (default: false)
-    --commit true|false     Run commit_gh.sh if present (default: false)
-    --request true|false    Trigger PR scan (default: false)
-    --merge-main            Merge the demo/leaky branch into main after all steps
-    --status                Only validate flags and show current Git status
-    --language <lang>       Builder language for demo (default: bash)
-    --scenario <scenario>   Builder scenario for demo (default: AWS)
-    --validate              Check for required tools and dependencies
-    --debug [compact]       Print parsed flags; use "compact" for inline display
-    --quiet                 Suppress banner/progress output (for CI/cron)
-    --help                  Show usage and exit
-    --version               Show version and exit
-
-Notes:
-  - The destroy subcommand *must* be used with --repo-name, and will prompt for confirmation unless --yes is supplied.
-  - Use --quiet for less output during any operation.
-  - Most flags default to 'false' unless specified.
-
-🎶 “I'm not like you... I was born on a different Cloud.” — Oasis
-EOF
-  exit 0
-fi
-
-check_github_auth() {
-  if ! gh auth status &>/dev/null; then
-    fail "GitHub CLI is not authenticated. Please run 'gh auth login' before continuing."
-  else
-    ok "GitHub CLI authentication verified."
-  fi
-}
 
 # -------- 🛡️ Gitignore precedence --------
 GITIGNORE_SOURCES=("$SCRIPTS_FOLDER/.gitignore" "$HOME/.gitignore_global")
