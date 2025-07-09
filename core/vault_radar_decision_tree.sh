@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.0"
+VERSION="2.1.1"
 
 # --- Find the base/core script folder ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
@@ -132,12 +132,12 @@ main_decision_tree() {
 
     # Summary
     echo "🚦 Summary:"
-    printf "  Repo name:    ${color_green}%s${color_reset}\n" "$REPO_NAME"
-    echo "  Language:     $LANGUAGE"
-    echo "  Scenario:     $SCENARIO"
-    echo "  Commit:       $DO_COMMIT"
-    echo "  Trigger PR:   $DO_TRIGGER"
-    echo "  Merge branch: $MERGE_YESNO"
+    printf "  %-15s %s\n" "Repo name:"    "${color_green}${REPO_NAME}${color_reset}"
+    printf "  %-15s %s\n" "Language(s):"  "${LANGUAGE_ARRAY[*]}"
+    printf "  %-15s %s\n" "Scenario(s):"  "${SCENARIO_ARRAY[*]}"
+    printf "  %-15s %s\n" "Commit:"       "$DO_COMMIT"
+    printf "  %-15s %s\n" "Trigger PR:"   "$DO_TRIGGER"
+    printf "  %-15s %s\n" "Merge branch:" "$MERGE_YESNO"
     echo
 
     # Compose the command to show/run
