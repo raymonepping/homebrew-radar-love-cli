@@ -3,8 +3,7 @@ set -euo pipefail
 # Vault_Radar_builder.sh
 # Generate realistic "leak" scripts for Vault Radar demo/testing.
 
-VERSION="2.1.2"
-
+VERSION="2.1.4"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 RUNID="$(date +%s)-$RANDOM"
@@ -62,6 +61,10 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PARENT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Make template paths absolute if needed
+[[ ! "$HEADER_TEMPLATE" =~ ^/ ]] && HEADER_TEMPLATE="$SCRIPT_DIR/$HEADER_TEMPLATE"
+[[ ! "$FOOTER_TEMPLATE" =~ ^/ ]] && FOOTER_TEMPLATE="$SCRIPT_DIR/$FOOTER_TEMPLATE"
+
 # Resolve header template
 if [[ ! -f "$HEADER_TEMPLATE" ]]; then
   if [[ -n "${RADAR_LOVE_HOME:-}" && -f "$RADAR_LOVE_HOME/templates/header.tpl" ]]; then
@@ -72,6 +75,7 @@ if [[ ! -f "$HEADER_TEMPLATE" ]]; then
     HEADER_TEMPLATE="$PARENT_DIR/templates/header.tpl"
   fi
 fi
+
 # Resolve footer template
 if [[ ! -f "$FOOTER_TEMPLATE" ]]; then
   if [[ -n "${RADAR_LOVE_HOME:-}" && -f "$RADAR_LOVE_HOME/templates/footer.tpl" ]]; then
@@ -99,7 +103,13 @@ log() { [[ $QUIET -eq 0 ]] && echo -e "$@"; echo -e "$@" >> "${LOGFILE}"; }
 
 # --- Read Leaks, Filter by Scenario ---
 if [[ -n "$SCENARIO" ]]; then
-  LEAKS=$(jq -c --arg scenario "$SCENARIO" '.leaks[] | select((.scenario | ascii_downcase) == ($scenario | ascii_downcase))' "$INPUT")
+  # Handle scenarios with commas (e.g., "aws,github")
+  IFS=',' read -ra SCEN_LIST <<< "$SCENARIO"
+  LEAKS=""
+  for scen in "${SCEN_LIST[@]}"; do
+    SCEN_LEAKS=$(jq -c --arg scenario "$scen" '.leaks[] | select((.scenario | ascii_downcase) == ($scenario | ascii_downcase))' "$INPUT")
+    [[ -n "$SCEN_LEAKS" ]] && LEAKS+="${SCEN_LEAKS}"$'\n'
+  done
 else
   LEAKS=$(jq -c '.leaks[]' "$INPUT")
 fi
@@ -256,7 +266,7 @@ if [[ $DRYRUN -eq 0 ]]; then
     echo "echo \"Cleaning up all Vault Radar demo outputs in: ${OUTDIR}\""
     echo "rm -f \"${LOGFILE}\" \"${CLEANUP_SCRIPT}\""
     for lang in "${GEN_LANGS[@]}"; do
-      echo "rm -f \"${OUTFILES[$lang]}\""
+      [[ -f "${OUTFILES[$lang]}" ]] && echo "rm -f \"${OUTFILES[$lang]}\""
     done
     echo 'echo "Cleanup complete."'
   } > "${CLEANUP_SCRIPT}"

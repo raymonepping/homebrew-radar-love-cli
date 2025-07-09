@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.2"
+VERSION="2.1.4"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 
@@ -19,7 +19,7 @@ validate_flags() {
 
   VALID_FLAGS=(
     repo_name create fresh build  
-    language languages 
+    language # languages removed
     scenario scenarios
     commit request merge_main status
     quiet debug validate version help
@@ -52,24 +52,26 @@ validate_flags() {
     fi
   done
 
-  # --- Sanitize multi-value flags
-  _flags_ref[languages]="${_flags_ref[languages]:-${_flags_ref[language]:-bash}}"
-  _flags_ref[scenarios]="${_flags_ref[scenarios]:-${_flags_ref[scenario]:-AWS}}"
+  # --- Single language only!
+  _flags_ref[language]="${_flags_ref[language]:-${_flags_ref[languages]:-bash}}"
+  _flags_ref[language]="$(echo "${_flags_ref[language]}" | xargs | tr '[:upper:]' '[:lower:]')"
+  if [[ "${_flags_ref[language]}" == *","* || "${_flags_ref[language]}" == *" "* ]]; then
+    log_error "Only a single language is supported. Use --language with one value only."
+  fi
 
-  local -a LANGUAGE_LIST=()
-  local -a SCENARIO_LIST=()
-
-  IFS=',' read -ra RAW_LANGUAGES <<< "${_flags_ref[languages]}"
-  IFS=',' read -ra RAW_SCENARIOS <<< "${_flags_ref[scenarios]}"
-
-  for lang in "${RAW_LANGUAGES[@]}"; do
-    lang_clean="$(echo "$lang" | xargs | tr '[:upper:]' '[:lower:]')"
-    if [[ ! " ${LANGUAGES[*]} " =~ (^|[[:space:]])${lang_clean}($|[[:space:]]) ]]; then
-      log_error "Invalid language: '$lang_clean'. Supported: ${LANGUAGES[*]}"
-    fi
-    LANGUAGE_LIST+=("$lang_clean")
+  # Validate the single language
+  local valid_lang=false
+  for lang in "${LANGUAGES[@]}"; do
+    [[ "${_flags_ref[language]}" == "${lang}" ]] && valid_lang=true && break
   done
+  if [[ "$valid_lang" != "true" ]]; then
+    log_error "Invalid language: '${_flags_ref[language]}'. Supported: ${LANGUAGES[*]}"
+  fi
 
+  # --- Multi-scenario allowed
+  _flags_ref[scenarios]="${_flags_ref[scenarios]:-${_flags_ref[scenario]:-AWS}}"
+  IFS=',' read -ra RAW_SCENARIOS <<< "${_flags_ref[scenarios]}"
+  local -a SCENARIO_LIST=()
   for scen in "${RAW_SCENARIOS[@]}"; do
     scen_clean="$(echo "$scen" | xargs | tr '[:upper:]' '[:lower:]')"
     if [[ ! " ${SCENARIOS[*]} " =~ (^|[[:space:]])${scen_clean}($|[[:space:]]) ]]; then
@@ -77,14 +79,11 @@ validate_flags() {
     fi
     SCENARIO_LIST+=("$scen_clean")
   done
-
-  # Store validated lists back into flags
-  _flags_ref[languages]="${LANGUAGE_LIST[*]}"
   _flags_ref[scenarios]="${SCENARIO_LIST[*]}"
 
   # 🧠 Auto-correct: set build=true if scenario/language provided but build=false
-  if [[ "${_flags_ref[build]}" != "true" && ( "${#LANGUAGE_LIST[@]}" -gt 0 || "${#SCENARIO_LIST[@]}" -gt 0 ) ]]; then
-    log_warn "Explicit --languages or --scenarios set, but --build=false"
+  if [[ "${_flags_ref[build]}" != "true" && ( -n "${_flags_ref[language]}" || "${#SCENARIO_LIST[@]}" -gt 0 ) ]]; then
+    log_warn "Explicit --language or --scenarios set, but --build=false"
     log_info "Auto-correcting: setting --build=true"
     _flags_ref[build]="true"
   fi

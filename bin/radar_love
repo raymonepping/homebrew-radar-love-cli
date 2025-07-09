@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.2"
+VERSION="2.1.4"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -60,7 +60,6 @@ FILE_FOOTER="footer.tpl"
 FILE_README="README.tpl"
 FILE_SCENARIO_TEMPLATE="vault_radar_scenarios.tpl"
 
-
 # ----------- EARLY HANDLERS (must exit immediately!) -----------
 # Block misuse of --destroy as a flag
 if [[ " $* " =~ " --destroy " ]]; then
@@ -88,7 +87,7 @@ fi
 
 # Handle --help
 if [[ "${1:-}" == "--help" ]]; then
-cat <<EOF
+  cat <<EOF
 Radar Love CLI — Secret Scanning Demo Pipeline
 Version: $VERSION
 
@@ -175,22 +174,22 @@ check_github_auth() {
 # ----------- DECISION TREE HANDOFF IF NEEDED -----------
 
 ACTION_FLAGS=(
-  --create 
-  --repo-name 
-  --build 
-  --commit 
-  --request 
-  --merge-main 
-  --fresh 
-  --language 
-  --scenario 
-  --status 
-  --quiet 
-  --debug 
-  --validate 
-  --destroy 
+  --create
+  --repo-name
+  --build
+  --commit
+  --request
+  --merge-main
+  --fresh
+  --language
+  --scenario
+  --status
+  --quiet
+  --debug
+  --validate
+  --destroy
   --yes
-  )
+)
 HAS_ACTION_FLAG="false"
 HAS_DRY_RUN="false"
 
@@ -244,68 +243,68 @@ FLAGS[scenario]=""
 
 parse_flags() {
   local -n FLAGS_REF=$1
-  shift  # Shift out "FLAGS" so only real CLI flags remain
+  shift # Shift out "FLAGS" so only real CLI flags remain
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --repo-name)
-        FLAGS_REF[repo_name]="$2"
-        shift 2
-        ;;
-      --build)
-        FLAGS_REF[build]="${2:-true}"
-        shift 2
-        ;;
-      --create)
-        FLAGS_REF[create]="${2:-true}"
-        shift 2
-        ;;
-      --fresh)
-        FLAGS_REF[fresh]="${2:-false}"
-        shift 2
-        ;;
-      --commit)
-        FLAGS_REF[commit]="${2:-false}"
-        shift 2
-        ;;
-      --request)
-        FLAGS_REF[request]="${2:-false}"
-        shift 2
-        ;;
-      --languages|--language)
-        FLAGS_REF[languages]="$2"
-        shift 2
-        ;;
-      --debug)
-        FLAGS_REF[debug]="true"
-        shift
-        ;;
-      --quiet)
-        FLAGS_REF[quiet]="true"
-        shift
-        ;;
-      --status)
-        FLAGS_REF[status]="true"
-        shift
-        ;;
-      --destroy)
-        FLAGS_REF[destroy]="true"
-        shift
-        ;;
-      --merge-main)
-        FLAGS_REF[merge_main]="true"
-        shift
-        ;;
-      --scenarios|--scenario)
-        FLAGS_REF[scenarios]="$2"
-        shift 2
-        ;;
-      *)
-        if [[ "${FLAGS_REF[quiet]}" != "true" ]]; then
-          echo "❌ Unknown flag: $1"
-        fi
-        exit 1  # 🔥 Fail on unknown flag
-        ;;
+    --repo-name)
+      FLAGS_REF[repo_name]="$2"
+      shift 2
+      ;;
+    --build)
+      FLAGS_REF[build]="${2:-true}"
+      shift 2
+      ;;
+    --create)
+      FLAGS_REF[create]="${2:-true}"
+      shift 2
+      ;;
+    --fresh)
+      FLAGS_REF[fresh]="${2:-false}"
+      shift 2
+      ;;
+    --commit)
+      FLAGS_REF[commit]="${2:-false}"
+      shift 2
+      ;;
+    --request)
+      FLAGS_REF[request]="${2:-false}"
+      shift 2
+      ;;
+    --languages | --language)
+      FLAGS_REF[languages]="$2"
+      shift 2
+      ;;
+    --debug)
+      FLAGS_REF[debug]="true"
+      shift
+      ;;
+    --quiet)
+      FLAGS_REF[quiet]="true"
+      shift
+      ;;
+    --status)
+      FLAGS_REF[status]="true"
+      shift
+      ;;
+    --destroy)
+      FLAGS_REF[destroy]="true"
+      shift
+      ;;
+    --merge-main)
+      FLAGS_REF[merge_main]="true"
+      shift
+      ;;
+    --scenarios | --scenario)
+      FLAGS_REF[scenarios]="$2"
+      shift 2
+      ;;
+    *)
+      if [[ "${FLAGS_REF[quiet]}" != "true" ]]; then
+        echo "❌ Unknown flag: $1"
+      fi
+      exit 1 # 🔥 Fail on unknown flag
+      ;;
     esac
   done
 }
@@ -390,9 +389,9 @@ if [[ "${FLAGS[status]}" == "true" ]]; then
   echo -e "\n==== 🔍 Git Status Only (--status mode) ===="
 
   if [[ -d "$PROJECT_FOLDER/.git" ]]; then
-    pushd "$PROJECT_FOLDER" > /dev/null
+    pushd "$PROJECT_FOLDER" >/dev/null
     git status
-    popd > /dev/null
+    popd >/dev/null
   else
     echo "❌ No git repository found at $PROJECT_FOLDER"
     exit 1
@@ -400,7 +399,6 @@ if [[ "${FLAGS[status]}" == "true" ]]; then
 
   exit 0
 fi
-
 
 # -------- Copy .gitignore --------
 copy_gitignore() {
