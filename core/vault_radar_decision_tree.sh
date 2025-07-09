@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.7"
+VERSION="2.1.8"
 
 # --- Find the base/core script folder ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
@@ -160,7 +160,7 @@ if [[ -z "${CREATE}" || "${CREATE,,}" =~ ^(y|yes)$ ]]; then
         echo "🚦 Skipped execution. No changes made."
     exit 0
   fi
-
+}
 
 if [[ "${1:-}" == "--test" ]]; then
   main_decision_tree
