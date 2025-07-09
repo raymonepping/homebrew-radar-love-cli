@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.0.7"
+VERSION="2.1.0"
 
 # --- Find the base/core script folder ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
@@ -79,27 +79,37 @@ main_decision_tree() {
       SCENARIOS=(AWS github inclusivity pii)
     fi
 
-    # --- Language selection
+    # --- Language multi-selection
     echo
-    echo "Select demo language:"
-    select LANG_CHOICE in "${LANGUAGES[@]}"; do
-      if [[ -n "$LANG_CHOICE" ]]; then
-        LANGUAGE="$LANG_CHOICE"
-        break
-      else
-        echo "Invalid selection. Please pick a language from the list."
+    echo "Available languages: ${LANGUAGES[*]}"
+    echo "Enter one or more languages (comma-separated):"
+    read -r LANGUAGE_INPUT_RAW
+    LANGUAGE_INPUT_RAW="$(echo "$LANGUAGE_INPUT_RAW" | xargs)"
+    IFS=',' read -ra LANGUAGE_ARRAY <<< "$(echo "$LANGUAGE_INPUT_RAW" | tr '[:upper:]' '[:lower:]')"
+
+    # Validate
+    VALID_LANGS_LOWER=("${LANGUAGES[@],,}")
+    for lang in "${LANGUAGE_ARRAY[@]}"; do
+      if [[ ! " ${VALID_LANGS_LOWER[*]} " =~ (^|[[:space:]])$lang($|[[:space:]]) ]]; then
+        echo "❌ Invalid language: '$lang'. Valid options: ${LANGUAGES[*]}"
+        exit 1
       fi
     done
 
-    # --- Scenario selection
+    # --- Scenario multi-selection
     echo
-    echo "Select demo scenario:"
-    select SCENARIO_CHOICE in "${SCENARIOS[@]}"; do
-      if [[ -n "$SCENARIO_CHOICE" ]]; then
-        SCENARIO="$SCENARIO_CHOICE"
-        break
-      else
-        echo "Invalid selection. Please pick a scenario from the list."
+    echo "Available scenarios: ${SCENARIOS[*]}"
+    echo "Enter one or more scenarios (comma-separated):"
+    read -r SCENARIO_INPUT_RAW
+    SCENARIO_INPUT_RAW="$(echo "$SCENARIO_INPUT_RAW" | xargs)"
+    IFS=',' read -ra SCENARIO_ARRAY <<< "$(echo "$SCENARIO_INPUT_RAW" | tr '[:upper:]' '[:lower:]')"
+
+    # Validate
+    VALID_SCNS_LOWER=("${SCENARIOS[@],,}")
+    for scn in "${SCENARIO_ARRAY[@]}"; do
+      if [[ ! " ${VALID_SCNS_LOWER[*]} " =~ (^|[[:space:]])$scn($|[[:space:]]) ]]; then
+        echo "❌ Invalid scenario: '$scn'. Valid options: ${SCENARIOS[*]}"
+        exit 1
       fi
     done
 
@@ -131,29 +141,33 @@ main_decision_tree() {
     echo
 
     # Compose the command to show/run
-    RADAR_CMD="radar_love --create true --repo-name \"$REPO_NAME\" --build true --language \"$LANGUAGE\" --scenario \"$SCENARIO\" --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE"
-    [[ "$DRY_RUN" == "true" ]] && RADAR_CMD="$RADAR_CMD --dry-run"
+    echo -e "\n🧩 Preparing to run combinations:\n"
+    COMMANDS_TO_RUN=()
+    for lang in "${LANGUAGE_ARRAY[@]}"; do
+      for scn in "${SCENARIO_ARRAY[@]}"; do
+        COMBO_REPO="${REPO_NAME}-${lang}-${scn}"
+        echo -e "🔧 ${color_blue}${COMBO_REPO}${color_reset} → $lang + $scn"
 
-    echo "Would now run:"
-    echo -e "${color_blue}${RADAR_CMD}${color_reset}"
-    echo
-
+        CMD="radar_love --create true --repo-name \"$COMBO_REPO\" --build true --language \"$lang\" --scenario \"$scn\" --commit $DO_COMMIT --request $DO_TRIGGER $DO_MERGE"
+        [[ "$DRY_RUN" == "true" ]] && CMD="$CMD --dry-run"
+        echo "Would run: ${color_blue}${CMD}${color_reset}"
+        COMMANDS_TO_RUN+=("$CMD")
+        echo
+      done
+    done
+    
     # Final confirmation before running
-    echo -n "Would you like to run this command now? (Y/n) "
+    echo -n "Would you like to run all the above commands now? (Y/n) "
     read -r FINAL_CONFIRM
     if [[ -z "${FINAL_CONFIRM}" || "${FINAL_CONFIRM,,}" =~ ^(y|yes)$ ]]; then
-      if [[ "$DRY_RUN" == "true" ]]; then
-        echo -e "${color_yellow}Dry-run enabled. No changes will be made.${color_reset}"
-        exit 0
-      else
-        echo -e "${color_blue}Running radar_love...${color_reset}"
-        eval "$RADAR_CMD"
-      fi
+      for cmd in "${COMMANDS_TO_RUN[@]}"; do
+        echo -e "\n🚀 Running: ${color_blue}${cmd}${color_reset}"
+        eval "$cmd"
+      done
     else
       echo "🚦 Skipped execution. No changes made."
       exit 0
     fi
-
   else
     echo "Exiting!"
     exit 0
