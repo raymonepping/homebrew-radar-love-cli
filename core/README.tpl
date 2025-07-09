@@ -160,10 +160,12 @@ Works with: HashiCorp Vault Radar (https://www.hashicorp.com/en/products/vault/h
 ## 🧠 Learn More
 
 - [🔐 Vault Radar](https://www.hashicorp.com/products/vault/hcp-vault-radar)
-- [🧠 Blog: Part   I: Radar_Love](https://medium.com/continuous-insights/from-dream-to-demo-building-an-automated-secret-scanning-pipeline-064a64971f64)
-- [🧠 Blog: Part  II: Radar_Love](https://medium.com/continuous-insights/part-ii-real-time-bash-automation-version-bumps-and-living-docs-battle-tested-and-d8edf88b1d5c)
-- [🧠 Blog: Part III: Radar_Love](https://medium.com/@raymonepping/radar-love-part-iii-brewing-a-cli-revolution-12a054708d2f)
-
+- [🧠 Blog: Main    : Radar_Love](https://medium.com/continuous-insights/radar-love-simulate-and-detect-leaks-in-secrets-pii-and-non-inclusive-language-before-its-c9706f43051f)
+- [🔓 Blog: Part   I: Radar_Love](https://medium.com/continuous-insights/from-dream-to-demo-building-an-automated-secret-scanning-pipeline-064a64971f64)
+- [🔐 Blog: Part  II: Radar_Love](https://medium.com/continuous-insights/part-ii-real-time-bash-automation-version-bumps-and-living-docs-battle-tested-and-d8edf88b1d5c)
+- [🔒 Blog: Part III: Radar_Love](https://medium.com/continuous-insights/radar-love-part-iii-brewing-a-cli-revolution-12a054708d2f)
+- [🌳 Blog: Part  IV: Radar_Love](https://medium.com/continuous-insights/part-iv-decision-trees-and-demo-workflows-v2-0-0-reload-and-repeat-7305b899353c)
+- [🔏 Blog: Part   V: Radar_Love](https://medium.com/continuous-insights/part-v-auto-generated-docs-and-badges-from-scripts-to-self-explaining-pipelines-883dd52b7127)
 ---
 
 🎶 “I’m not like you… I was born on a different cloud.” — *Oasis*
