@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.9"
+VERSION="2.1.10"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -162,6 +162,30 @@ if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
   fi
 fi
 
+# --- LANGUAGES FLAG COMPATIBILITY ALIAS ---
+# Converts --languages python, --languages=python, --languages python,terraform to --language ...
+NEW_ARGS=()
+skip_next=false
+for ((i=1; i<=$#; i++)); do
+  arg="${!i}"
+  if [[ "$skip_next" == "true" ]]; then
+    skip_next=false
+    continue
+  fi
+  if [[ "$arg" == --languages ]]; then
+    next_idx=$((i+1))
+    val="${!next_idx}"
+    NEW_ARGS+=(--language "$val")
+    skip_next=true
+  elif [[ "$arg" =~ ^--languages= ]]; then
+    val="${arg#--languages=}"
+    NEW_ARGS+=(--language "$val")
+  else
+    NEW_ARGS+=("$arg")
+  fi
+done
+set -- "${NEW_ARGS[@]}"
+
 # --- Utility Functions ---
 check_github_auth() {
   if ! gh auth status &>/dev/null; then
@@ -211,6 +235,16 @@ if [[ "$HAS_ACTION_FLAG" == "false" ]]; then
     exec "$SCRIPTS_FOLDER/vault_radar_decision_tree.sh"
   fi
 fi
+
+# Alias --languages to --language for compatibility
+for i in "$@"; do
+  if [[ "$i" == --languages* ]]; then
+    # Extract the value after the =
+    val="${i#--languages=}"
+    # Remove --languages from positional parameters and replace with --language
+    set -- "${@/--languages=$val/--language=$val}"
+  fi
+done
 
 # -------- 🛡️ Gitignore precedence --------
 GITIGNORE_SOURCES=("$SCRIPTS_FOLDER/.gitignore" "$HOME/.gitignore_global")
