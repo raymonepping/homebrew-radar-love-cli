@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.1"
+VERSION="2.1.2"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -224,8 +224,23 @@ else
   exit 1
 fi
 
-# --- Parse CLI Flags into FLAGS associative array ---
+# 🛡️ Safe default values to prevent "unbound variable" issues
 declare -A FLAGS
+
+# 🛡️ Safe default values to prevent "unbound variable" issues
+FLAGS[quiet]=false
+FLAGS[debug]=false
+FLAGS[build]=false
+FLAGS[create]=true
+FLAGS[fresh]=false
+FLAGS[commit]=false
+FLAGS[request]=false
+FLAGS[merge_main]=false
+FLAGS[status]=false
+FLAGS[destroy]=false
+FLAGS[repo_name]=""
+FLAGS[languages]=""
+FLAGS[scenario]=""
 
 parse_flags() {
   local -n FLAGS_REF=$1
@@ -257,8 +272,8 @@ parse_flags() {
         FLAGS_REF[request]="${2:-false}"
         shift 2
         ;;
-      --language)
-        FLAGS_REF[language]="$2"
+      --languages|--language)
+        FLAGS_REF[languages]="$2"
         shift 2
         ;;
       --debug)
@@ -281,8 +296,8 @@ parse_flags() {
         FLAGS_REF[merge_main]="true"
         shift
         ;;
-      --scenario)
-        FLAGS_REF[scenario]="$2"
+      --scenarios|--scenario)
+        FLAGS_REF[scenarios]="$2"
         shift 2
         ;;
       *)

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.1"
+VERSION="2.1.2"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 
@@ -18,27 +18,14 @@ validate_flags() {
   [[ "$debug" == "compact" ]] && compact=true && _flags_ref[debug]="true"
 
   VALID_FLAGS=(
-    create 
-    build 
-    fresh 
-    commit 
-    request 
-    quiet 
-    status 
-    language 
-    scenario 
-    debug 
-    validate 
-    version 
-    help 
-    repo_name 
-    merge_main 
-    yes 
-    destroy 
-    dry_run
+    repo_name create fresh build  
+    language languages 
+    scenario scenarios
+    commit request merge_main status
+    quiet debug validate version help
+    yes destroy dry_run
   )
 
-  # --- Dynamically load allowed languages and scenarios from input JSON
   local SCRIPTS_FOLDER="${SCRIPTS_FOLDER:-.}"
   local VAULT_INPUT_JSON="$SCRIPTS_FOLDER/vault_radar_input.json"
 
@@ -50,14 +37,14 @@ validate_flags() {
     SCENARIOS=(aws github inclusivity pii)
   fi
 
-  # ✅ Unknown flag check (strict match)
+  # ✅ Check for unknown flags
   for key in "${!_flags_ref[@]}"; do
     if [[ ! " ${VALID_FLAGS[*]} " =~ (^|[[:space:]])$key($|[[:space:]]) ]]; then
       log_error "Unknown flag: --$key"
     fi
   done
 
-  # ✅ Boolean validation (INCLUDES DRY_RUN!)
+  # ✅ Validate boolean flags
   for flag in create build fresh commit request quiet status yes dry_run; do
     _flags_ref[$flag]="${_flags_ref[$flag]:-false}"
     if [[ "${_flags_ref[$flag]}" != "true" && "${_flags_ref[$flag]}" != "false" ]]; then
@@ -65,36 +52,45 @@ validate_flags() {
     fi
   done
 
-  # ✅ Safe defaulting (only if not set)
-  [[ -z "${_flags_ref[language]:-}" ]] && _flags_ref[language]="bash"
-  [[ -z "${_flags_ref[scenario]:-}" ]] && _flags_ref[scenario]="AWS"
-  _flags_ref[debug]="${_flags_ref[debug]:-false}"
+  # --- Sanitize multi-value flags
+  _flags_ref[languages]="${_flags_ref[languages]:-${_flags_ref[language]:-bash}}"
+  _flags_ref[scenarios]="${_flags_ref[scenarios]:-${_flags_ref[scenario]:-AWS}}"
 
-  # --- Language/scenario validation
-  local language_lower scenario_lower
-  language_lower="$(echo "${_flags_ref[language]}" | tr '[:upper:]' '[:lower:]')"
-  scenario_lower="$(echo "${_flags_ref[scenario]}" | tr '[:upper:]' '[:lower:]')"
+  local -a LANGUAGE_LIST=()
+  local -a SCENARIO_LIST=()
 
-  if [[ ! " ${LANGUAGES[*]} " =~ (^|[[:space:]])${language_lower}($|[[:space:]]) ]]; then
-    log_error "Invalid language: '${_flags_ref[language]}'. Supported: ${LANGUAGES[*]}"
-  fi
+  IFS=',' read -ra RAW_LANGUAGES <<< "${_flags_ref[languages]}"
+  IFS=',' read -ra RAW_SCENARIOS <<< "${_flags_ref[scenarios]}"
 
-  if [[ ! " ${SCENARIOS[*]} " =~ (^|[[:space:]])${scenario_lower}($|[[:space:]]) ]]; then
-    log_error "Invalid scenario: '${_flags_ref[scenario]}'. Supported: ${SCENARIOS[*]}"
-  fi
+  for lang in "${RAW_LANGUAGES[@]}"; do
+    lang_clean="$(echo "$lang" | xargs | tr '[:upper:]' '[:lower:]')"
+    if [[ ! " ${LANGUAGES[*]} " =~ (^|[[:space:]])${lang_clean}($|[[:space:]]) ]]; then
+      log_error "Invalid language: '$lang_clean'. Supported: ${LANGUAGES[*]}"
+    fi
+    LANGUAGE_LIST+=("$lang_clean")
+  done
 
-  # 🧠 Intelligent correction
-  if [[ "${_flags_ref[build]}" != "true" && \
-        ( "${language_lower}" != "bash" || "${scenario_lower}" != "aws" ) ]]; then
-    log_warn "Explicit --language=${_flags_ref[language]} and/or --scenario=${_flags_ref[scenario]} given but --build=false"
+  for scen in "${RAW_SCENARIOS[@]}"; do
+    scen_clean="$(echo "$scen" | xargs | tr '[:upper:]' '[:lower:]')"
+    if [[ ! " ${SCENARIOS[*]} " =~ (^|[[:space:]])${scen_clean}($|[[:space:]]) ]]; then
+      log_error "Invalid scenario: '$scen_clean'. Supported: ${SCENARIOS[*]}"
+    fi
+    SCENARIO_LIST+=("$scen_clean")
+  done
+
+  # Store validated lists back into flags
+  _flags_ref[languages]="${LANGUAGE_LIST[*]}"
+  _flags_ref[scenarios]="${SCENARIO_LIST[*]}"
+
+  # 🧠 Auto-correct: set build=true if scenario/language provided but build=false
+  if [[ "${_flags_ref[build]}" != "true" && ( "${#LANGUAGE_LIST[@]}" -gt 0 || "${#SCENARIO_LIST[@]}" -gt 0 ) ]]; then
+    log_warn "Explicit --languages or --scenarios set, but --build=false"
     log_info "Auto-correcting: setting --build=true"
     _flags_ref[build]="true"
   fi
 
-  # 🧨 DANGER ZONE: destroy mode validation 
-  if [[ "${_flags_ref[destroy]:-false}" == "true" ]]; then
-    if [[ -z "${_flags_ref[repo_name]:-}" ]]; then
-      log_error "--repo-name is required when using destroy!"
-    fi
+  # 🔥 destroy safety check
+  if [[ "${_flags_ref[destroy]:-false}" == "true" && -z "${_flags_ref[repo_name]:-}" ]]; then
+    log_error "--repo-name is required when using destroy!"
   fi
 }
