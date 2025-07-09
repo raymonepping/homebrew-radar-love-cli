@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.10"
+VERSION="2.1.11"
 
 # --- Find the base/core script folder ---
 if [[ -n "${RADAR_LOVE_HOME:-}" && -d "$RADAR_LOVE_HOME/core" ]]; then
@@ -69,29 +69,29 @@ main_decision_tree() {
     CREATION_QUOTE=$(pick_quote "$BAND" "creation")
     echo "🎤 $CREATION_QUOTE"
 
-    # --- Dynamically load valid languages and scenarios from input file
+    # --- Dynamically load valid language and scenarios from input file
     VAULT_INPUT_JSON="$SCRIPTS_FOLDER/vault_radar_input.json"
     if [[ -f "$VAULT_INPUT_JSON" ]]; then
       mapfile -t LANGUAGES < <(jq -r '.leaks[].languages[]' "$VAULT_INPUT_JSON" | sort -u)
-      mapfile -t SCENARIOS < <(jq -r '.leaks[].scenario' "$VAULT_INPUT_JSON" | sort -u)
+      mapfile -t SCENARIOS < <(jq -r '.leaks[].scenario' "$VAULT_INPUT_JSON" | tr '[:upper:]' '[:lower:]' | sort -u)
     else
       LANGUAGES=(bash docker node python terraform)
-      SCENARIOS=(AWS github inclusivity pii)
+      SCENARIOS=(aws github inclusivity pii)
     fi
 
-    # --- Language: single select only
+    # --- Language: single select only; --languages alias handled by CLI entrypoint.
     echo
     echo "Available languages: ${LANGUAGES[*]}"
     while :; do
       echo "Enter language (single value):"
-      read -r LANGUAGE_INPUT_RAW
-      LANGUAGE_INPUT="$(echo "$LANGUAGE_INPUT_RAW" | xargs | tr '[:upper:]' '[:lower:]')"
+      read -r LANGUAGE_INPUT
+      LANGUAGE_INPUT="$(echo "$LANGUAGE_INPUT" | xargs | tr '[:upper:]' '[:lower:]')"
       if [[ -z "$LANGUAGE_INPUT" ]]; then
-        echo "❌ Please enter a language."
+        echo -e "${color_red}❌ Please enter a language.${color_reset}"
         continue
       fi
       if [[ ! " ${LANGUAGES[*],,} " =~ (^|[[:space:]])${LANGUAGE_INPUT}($|[[:space:]]) ]]; then
-        echo "❌ Invalid language: '$LANGUAGE_INPUT'. Valid options: ${LANGUAGES[*]}"
+        echo -e "${color_red}❌ Invalid language: '$LANGUAGE_INPUT'. Valid options: ${LANGUAGES[*]}${color_reset}"
         continue
       fi
       break
@@ -106,10 +106,10 @@ main_decision_tree() {
     IFS=',' read -ra SCENARIO_ARRAY <<< "$(echo "$SCENARIO_INPUT_RAW" | tr '[:upper:]' '[:lower:]')"
 
     # Validate
-    VALID_SCNS_LOWER=("${SCENARIOS[@],,}")
+    VALID_SCNS_LOWER=("${SCENARIOS[@]}")
     for scn in "${SCENARIO_ARRAY[@]}"; do
       if [[ ! " ${VALID_SCNS_LOWER[*]} " =~ (^|[[:space:]])$scn($|[[:space:]]) ]]; then
-        echo "❌ Invalid scenario: '$scn'. Valid options: ${SCENARIOS[*]}"
+        echo -e "${color_red}❌ Invalid scenario: '$scn'. Valid options: ${SCENARIOS[*]}${color_reset}"
         exit 1
       fi
     done

@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.10"
+VERSION="2.1.11"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -122,30 +122,6 @@ if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
   fi
 fi
 
-# --- LANGUAGES FLAG COMPATIBILITY ALIAS ---
-# Converts --languages python, --languages=python, --languages python,terraform to --language ...
-NEW_ARGS=()
-skip_next=false
-for ((i=1; i<=$#; i++)); do
-  arg="${!i}"
-  if [[ "$skip_next" == "true" ]]; then
-    skip_next=false
-    continue
-  fi
-  if [[ "$arg" == --languages ]]; then
-    next_idx=$((i+1))
-    val="${!next_idx}"
-    NEW_ARGS+=(--language "$val")
-    skip_next=true
-  elif [[ "$arg" =~ ^--languages= ]]; then
-    val="${arg#--languages=}"
-    NEW_ARGS+=(--language "$val")
-  else
-    NEW_ARGS+=("$arg")
-  fi
-done
-set -- "${NEW_ARGS[@]}"
-
 # ----------- DECISION TREE HANDOFF IF NEEDED -----------
 ACTION_FLAGS=(
   --create
@@ -212,7 +188,6 @@ FLAGS[merge_main]=false
 FLAGS[status]=false
 FLAGS[destroy]=false
 FLAGS[repo_name]=""
-FLAGS[languages]=""
 FLAGS[scenario]=""
 
 parse_flags() {
@@ -245,8 +220,8 @@ parse_flags() {
       FLAGS_REF[request]="${2:-false}"
       shift 2
       ;;
-    --languages | --language)
-      FLAGS_REF[languages]="$2"
+    --language)
+      FLAGS_REF[language]="$2"
       shift 2
       ;;
     --debug)

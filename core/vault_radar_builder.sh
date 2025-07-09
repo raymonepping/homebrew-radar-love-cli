@@ -3,7 +3,7 @@ set -euo pipefail
 # Vault_Radar_builder.sh
 # Generate realistic "leak" scripts for Vault Radar demo/testing.
 
-VERSION="2.1.10"
+VERSION="2.1.11"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 RUNID="$(date +%s)-$RANDOM"
@@ -11,7 +11,7 @@ RUNID="$(date +%s)-$RANDOM"
 # --- Defaults ---
 INPUT="Vault_Radar_input.json"
 OUTDIR="radar_demo"
-LANGS_TO_GEN="all"
+LANGS_TO_GEN="all"         # --language is normalized by entrypoint; never --languages
 SCENARIO=""
 HEADER_TEMPLATE="templates/header.tpl"
 FOOTER_TEMPLATE="templates/footer.tpl"
@@ -21,29 +21,25 @@ LINT=0
 DRYRUN=0
 QUIET=0
 
-# --- Parse CLI ---
 usage() {
   cat <<EOF
 Vault_Radar_builder.sh [options]
-
---output-path DIR         Output directory (default: ./radar_demo)
---languages LANG1,LANG2   Output only these (comma-separated): bash,python,node,docker,terraform,md
---language LANG           Same as above but single language
---scenario SCENARIO       Filter leaks for a specific scenario (e.g., AWS)
---header-template FILE    Custom header template file
---footer-template FILE    Custom footer template file
---lint                    Run sanity_check.sh if available
---dry-run                 Preview only, do not write files
---quiet                   Suppress standard output (errors/warnings only)
---help                    This help
---version                 Show script version
+  --output-path DIR         Output directory (default: ./radar_demo)
+  --language LANG           Output only these (comma-separated): bash,python,node,docker,terraform,md
+  --scenario SCENARIO       Filter leaks for a specific scenario (e.g., AWS)
+  --header-template FILE    Custom header template file
+  --footer-template FILE    Custom footer template file
+  --lint                    Run sanity_check.sh if available
+  --dry-run                 Preview only, do not write files
+  --quiet                   Suppress standard output (errors/warnings only)
+  --help                    This help
+  --version                 Show script version
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     --output-path) OUTDIR="$2"; shift 2 ;;
-    --languages) LANGS_TO_GEN="$2"; shift 2 ;;
     --language) LANGS_TO_GEN="$2"; shift 2 ;;
     --scenario) SCENARIO="$2"; shift 2 ;;
     --header-template) HEADER_TEMPLATE="$2"; shift 2 ;;
@@ -52,7 +48,7 @@ while [[ $# -gt 0 ]]; do
     --dry-run) DRYRUN=1; shift ;;
     --quiet) QUIET=1; shift ;;
     --help) usage; exit 0 ;;
-    --version) echo "$VERSION"; exit 0 ;;
+    --version) echo "Vault_Radar_builder.sh v$VERSION"; exit 0 ;;
     *) echo "Unknown option: $1"; usage; exit 1 ;;
   esac
 done
@@ -116,7 +112,7 @@ fi
 
 [[ -z "$LEAKS" ]] && die "No leaks found for scenario '$SCENARIO'."
 
-# --- Parse Languages ---
+# --- Parse Language ---
 IFS=',' read -r -a LANG_ARRAY <<< "$LANGS_TO_GEN"
 should_generate() {
   local lang="${1,,}"         # Lowercase
@@ -191,7 +187,7 @@ inject_terraform() {
 }
 
 inject_md() {
-  jq -r '. | "| "+.category+" | "+.label+" | "+.value+" | "+.severity+" | "+(.languages|join(","))+" | "+(.author // "")+" | "+(.source // "")+" | "+(.demo_notes // "")+" | "+(.scenario // "")+" |"' <<<"$1"
+  jq -r '. | "| "+.category+" | "+.label+" | "+.value+" | "+.severity+" | "+(.language|join(","))+" | "+(.author // "")+" | "+(.source // "")+" | "+(.demo_notes // "")+" | "+(.scenario // "")+" |"' <<<"$1"
 }
 
 # --- Main Output Loop ---
@@ -203,7 +199,7 @@ declare -A HEADER_DONE
 log "# Vault Radar Demo Leak Seed Run: $RUNID ($TIMESTAMP)"
 echo "$LEAKS_TO_USE" | while IFS= read -r leak; do
   [[ -z "$leak" ]] && continue
-  LANGS=$(jq -r '.languages[]' <<<"$leak" | awk '{print tolower($0)}')
+  LANGS=$(jq -r '.language[]' <<<"$leak" | awk '{print tolower($0)}')
   for lang in "${!OUTFILES[@]}"; do
     if should_generate "$lang" && grep -qw "$lang" <<<"$LANGS"; then
       echo "$lang" >> "${TMP_GEN_FILE}"
@@ -242,14 +238,14 @@ echo "$LEAKS_TO_USE" | while IFS= read -r leak; do
   done
 done
 
-# --- Deduplicate and collect generated languages ---
+# --- Deduplicate and collect generated language ---
 mapfile -t GEN_LANGS < <(sort -u "${TMP_GEN_FILE}")
 rm -f "${TMP_GEN_FILE}"
 
 # --- Add Markdown Table Header ---
 if should_generate "md" && [[ $DRYRUN -eq 0 && " ${GEN_LANGS[*]} " =~ " md " ]]; then
   MDH="${OUTFILES[md]}"
-  awk 'BEGIN{print "| Category | Label | Value | Severity | Languages | Author | Source | Notes | Scenario |\n|---|---|---|---|---|---|---|---|---|"} 1' "$MDH" > "$MDH.tmp" && mv "$MDH.tmp" "$MDH"
+  awk 'BEGIN{print "| Category | Label | Value | Severity | Language | Author | Source | Notes | Scenario |\n|---|---|---|---|---|---|---|---|---|"} 1' "$MDH" > "$MDH.tmp" && mv "$MDH.tmp" "$MDH"
 fi
 
 # --- Add Footers ---
@@ -292,7 +288,7 @@ if [[ $QUIET -eq 0 ]]; then
     sample=$(head -n 8 "$file" | tail -n 1)
     log " - $file (sample: $(echo "$sample" | head -c 60))"
   done
-  # For requested languages that were not generated (remove file if any was created accidentally)
+  # For requested language that were not generated (remove file if any was created accidentally)
   for lang in "${!OUTFILES[@]}"; do
     if should_generate "$lang" && [[ ! " ${GEN_LANGS[*]} " =~ " $lang " ]]; then
       log "⚠️  No leaks generated for $lang (missing leaks or scenario?)"
