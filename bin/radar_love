@@ -94,46 +94,7 @@ Version: $VERSION
 Usage:
   ./radar_love [flags]
   ./radar_love destroy --repo-name <name> [--yes] [--quiet]
-
-🚦 Interactive Mode:
-  No flags? We'll guide you step-by-step to set up a new demo project.
-
-🎛️ Flags:
-    --repo-name <name>      Project/repo name (required for destroy)
-    --create true|false     Create/connect GitHub repo (default: true)
-    --fresh true|false      Remove and recreate if exists (default: false)
-    --build true|false      Generate demo leak branch/files (default: false)
-    --commit true|false     Run commit_gh.sh after build (default: false)
-    --request true|false    Trigger PR scan (default: false)
-    --merge-main            Merge demo/leaky branch into main after all steps
-    --status                Only show current Git status and exit
-    --language <lang>       Demo language (default: bash)
-    --scenario <scenario>   Demo scenario (default: AWS)
-    --validate              Check dependencies and required tools
-    --debug [compact]       Print parsed flags; use "compact" for inline
-    --quiet                 Suppress banner/progress output
-    --help                  Show this message and exit
-    --version               Show version and exit
-
-💡 Examples:
-  ./radar_love --create true --repo-name "Wonderwall" --build true
-  ./radar_love destroy --repo-name Wonderwall --yes
-
-🚨 Danger Zone — Destruction:
-  destroy                Delete BOTH your local folder & GitHub demo repo.
-    --repo-name <name>   (required) Specify which repo/folder to delete
-    --yes                Skip *all* confirmations (CAUTION!)
-    --quiet              Suppress output for CI/automation
-
-Notes:
-  - The destroy subcommand *must* use --repo-name and confirms by default.
-    ✅ - Allowed:     ./radar_love destroy --repo-name X
-    ❌ - Not allowed: ./radar_love --destroy --repo-name X
-  - Case-sensitive: Type the exact repo name (dashes/casing) to confirm destruction.
-  - Use --quiet for less output (e.g. CI/CD pipelines).
-  - Most flags default to 'false' unless specified.
-
-🎶 "I'm not like you... I was born on a different Cloud." — Oasis
+[...]
 EOF
   exit 0
 fi
@@ -145,7 +106,6 @@ if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
     echo "❌ Missing or not executable: $VALIDATOR_SCRIPT"
     exit 1
   fi
-
   if bash "$VALIDATOR_SCRIPT"; then
     echo -e "\n✅ Environment looks good."
     exit 0
@@ -186,17 +146,7 @@ for ((i=1; i<=$#; i++)); do
 done
 set -- "${NEW_ARGS[@]}"
 
-# --- Utility Functions ---
-check_github_auth() {
-  if ! gh auth status &>/dev/null; then
-    fail "GitHub CLI is not authenticated. Please run 'gh auth login' before continuing."
-  else
-    ok "GitHub CLI authentication verified."
-  fi
-}
-
 # ----------- DECISION TREE HANDOFF IF NEEDED -----------
-
 ACTION_FLAGS=(
   --create
   --repo-name
@@ -235,16 +185,6 @@ if [[ "$HAS_ACTION_FLAG" == "false" ]]; then
     exec "$SCRIPTS_FOLDER/vault_radar_decision_tree.sh"
   fi
 fi
-
-# Alias --languages to --language for compatibility
-for i in "$@"; do
-  if [[ "$i" == --languages* ]]; then
-    # Extract the value after the =
-    val="${i#--languages=}"
-    # Remove --languages from positional parameters and replace with --language
-    set -- "${@/--languages=$val/--language=$val}"
-  fi
-done
 
 # -------- 🛡️ Gitignore precedence --------
 GITIGNORE_SOURCES=("$SCRIPTS_FOLDER/.gitignore" "$HOME/.gitignore_global")
