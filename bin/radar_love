@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.11"
+VERSION="2.1.12"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -121,6 +121,15 @@ if [[ "${1:-}" == "--validate" || "${1:-}" == "--deps" ]]; then
     exit 0
   fi
 fi
+
+# --- Utility Functions ---
+check_github_auth() {
+  if ! gh auth status &>/dev/null; then
+    fail "GitHub CLI is not authenticated. Please run 'gh auth login' before continuing."
+  else
+    ok "GitHub CLI authentication verified."
+  fi
+}
 
 # ----------- DECISION TREE HANDOFF IF NEEDED -----------
 ACTION_FLAGS=(
