@@ -4,7 +4,7 @@ set -euo pipefail
 set -o errtrace
 
 # shellcheck disable=SC2034
-VERSION="2.1.14"
+VERSION="2.1.15"
 
 HELP_MSG="
 Usage: vault_radar_destruction.sh --repo-name <REPO_NAME> [--force] [--quiet] [--yes] [--help]

@@ -3,7 +3,7 @@ set -euo pipefail
 # Vault_Radar_builder.sh
 # Generate realistic "leak" scripts for Vault Radar demo/testing.
 
-VERSION="2.1.14"
+VERSION="2.1.15"
 AUTHOR="raymon.epping"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 RUNID="$(date +%s)-$RANDOM"
@@ -187,7 +187,21 @@ inject_terraform() {
 }
 
 inject_md() {
-  jq -r '. | "| "+.category+" | "+.label+" | "+.value+" | "+.severity+" | "+(.language|join(","))+" | "+(.author // "")+" | "+(.source // "")+" | "+(.demo_notes // "")+" | "+(.scenario // "")+" |"' <<<"$1"
+  local leak_json="$1"
+  local language="$2"
+  jq -r --arg lang "$language" '
+    select(.languages[] | ascii_downcase == $lang)
+    | "| " + .category
+      + " | " + .label
+      + " | " + .value
+      + " | " + .severity
+      + " | " + $lang
+      + " | " + (.author // "")
+      + " | " + (.source // "")
+      + " | " + (.demo_notes // "")
+      + " | " + (.scenario // "")
+      + " |"
+  ' <<<"$leak_json"
 }
 
 # --- Main Output Loop ---
@@ -199,7 +213,7 @@ declare -A HEADER_DONE
 log "# Vault Radar Demo Leak Seed Run: $RUNID ($TIMESTAMP)"
 echo "$LEAKS_TO_USE" | while IFS= read -r leak; do
   [[ -z "$leak" ]] && continue
-  LANGS=$(jq -r '.language[]' <<<"$leak" | awk '{print tolower($0)}')
+  LANGS=$(jq -r '.languages[]' <<<"$leak" | awk '{print tolower($0)}')
   for lang in "${!OUTFILES[@]}"; do
     if should_generate "$lang" && grep -qw "$lang" <<<"$LANGS"; then
       echo "$lang" >> "${TMP_GEN_FILE}"
