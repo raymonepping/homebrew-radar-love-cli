@@ -1,10 +1,10 @@
 class RadarLoveCli < Formula
   desc "CLI toolkit for simulating secret leaks and triggering GitHub PR scans"
   homepage "https://github.com/raymonepping/radar_love_cli"
-  url "https://github.com/raymonepping/homebrew-radar-love-cli/archive/refs/tags/v2.1.7.tar.gz"
-  sha256 "8b8c0d6eb941fac885b5fa7eb80dc35d204272aaa0689871a1ebf7d32ca7683a"
+  url "https://github.com/raymonepping/homebrew-radar-love-cli/archive/refs/tags/v2.1.8.tar.gz"
+  sha256 "699ae316edb7073cffd3a8ea7cc7758cb2303446d7d7216ebe2ef1880d10b3f1"
   license "MIT"
-  version "2.1.7"
+  version "2.1.8"
 
   depends_on "bash"
 
