@@ -113,11 +113,3 @@
 ---
 </details>
 
-## Table of Contents
-- [Blacklist (non_inclusive / inclusivity)](#blacklist-non_inclusive-inclusivity)
-- [Master branch (non_inclusive / inclusivity)](#master-branch-non_inclusive-inclusivity)
-- [SSN (pii / PII)](#ssn-pii-pii)
-- [Email (pii / PII)](#email-pii-pii)
-- [AWS Access Key (secret / AWS)](#aws-access-key-secret-aws)
-- [GitHub Token (secret / github)](#github-token-secret-github)
-
