@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.1.12"
+VERSION="2.1.14"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -87,14 +87,53 @@ fi
 
 # Handle --help
 if [[ "${1:-}" == "--help" ]]; then
-  cat <<EOF
+cat <<EOF
 Radar Love CLI — Secret Scanning Demo Pipeline
 Version: $VERSION
 
 Usage:
   ./radar_love [flags]
   ./radar_love destroy --repo-name <name> [--yes] [--quiet]
-[...]
+
+🚦 Interactive Mode:
+  No flags? We'll guide you step-by-step to set up a new demo project.
+
+🎛️ Flags:
+    --repo-name <name>      Project/repo name (required for destroy)
+    --create true|false     Create/connect GitHub repo (default: true)
+    --fresh true|false      Remove and recreate if exists (default: false)
+    --build true|false      Generate demo leak branch/files (default: false)
+    --commit true|false     Run commit_gh.sh after build (default: false)
+    --request true|false    Trigger PR scan (default: false)
+    --merge-main            Merge demo/leaky branch into main after all steps
+    --status                Only show current Git status and exit
+    --language <lang>       Demo language (default: bash)
+    --scenario <scenario>   Demo scenario (default: AWS)
+    --validate              Check dependencies and required tools
+    --debug [compact]       Print parsed flags; use "compact" for inline
+    --quiet                 Suppress banner/progress output
+    --help                  Show this message and exit
+    --version               Show version and exit
+
+💡 Examples:
+  ./radar_love --create true --repo-name "Wonderwall" --build true
+  ./radar_love destroy --repo-name Wonderwall --yes
+
+🚨 Danger Zone — Destruction:
+  destroy                Delete BOTH your local folder & GitHub demo repo.
+    --repo-name <name>   (required) Specify which repo/folder to delete
+    --yes                Skip *all* confirmations (CAUTION!)
+    --quiet              Suppress output for CI/automation
+
+Notes:
+  - The destroy subcommand *must* use --repo-name and confirms by default.
+    ✅ - Allowed:     ./radar_love destroy --repo-name X
+    ❌ - Not allowed: ./radar_love --destroy --repo-name X
+  - Case-sensitive: Type the exact repo name (dashes/casing) to confirm destruction.
+  - Use --quiet for less output (e.g. CI/CD pipelines).
+  - Most flags default to 'false' unless specified.
+
+🎶 "I'm not like you... I was born on a different Cloud." — Oasis
 EOF
   exit 0
 fi
