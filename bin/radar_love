@@ -2,7 +2,7 @@
 # set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.0.6"
+VERSION="2.0.7"
 DESCRIPTION="auto-seeding secret scanning demos"
 SCRIPT_NAME=$(basename "$0")
 
@@ -631,7 +631,7 @@ trigger_pr_and_scan() {
 }
 
 clean_install_files() {
-  local files=(header.tpl footer.tpl vault_radar_builder.sh vault_radar_input.json)
+  local files=(header.tpl footer.tpl vault_radar_scenarios.tpl vault_radar_builder.sh vault_radar_input.json)
   local removed=()
   cd "$PROJECT_FOLDER"
 
@@ -660,7 +660,7 @@ cleanup_files_in_branch() {
   local branch="$1"
   git checkout "$branch"
   git pull origin "$branch"
-  git rm -f header.tpl footer.tpl vault_radar_builder.sh vault_radar_input.json || true
+  git rm -f header.tpl footer.tpl vault_radar_scenarios.tpl vault_radar_builder.sh vault_radar_input.json || true
   if ! git diff --cached --quiet; then
     git commit -m "chore: remove scaffold/seed files from $branch"
     git push origin "$branch"
