@@ -9,7 +9,6 @@ Thumbs.db
 *.bak
 *.swp
 *.pid
-FOLDER_TREE.md
 .backup.json
 .backupignore
 
