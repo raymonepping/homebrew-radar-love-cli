@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="2.8.3"
+VERSION="2.9.0"
 TMP_SUMMARY=""
 
 # --- Robust temp cleanup on exit
