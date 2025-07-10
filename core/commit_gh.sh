@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck disable=SC2034
-VERSION="2.6.0"
+VERSION="2.6.1"
 
 QUIET=0
 GENERATE_TREE=0
