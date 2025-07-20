@@ -11,6 +11,7 @@ Thumbs.db
 *.pid
 .backup.json
 .backupignore
+v*.tar.gz
 
 ########################################
 # 💻 IDE & Editor Configs
