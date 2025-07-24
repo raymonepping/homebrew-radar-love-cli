@@ -1,16 +1,121 @@
-# radar_love_cli 🔐
+# radar_love 🌳
 
-> “Cold and frosty morning. There’s not a lot to say. About the things caught in my mind..” — *Oasis*
+> "Structure isn't boring – it's your first line of clarity." — *You (probably during a cleanup)*
 
-[![brew install](https://img.shields.io/badge/brew--install-success-green?logo=homebrew&style=flat-square)](https://github.com/raymonepping/radar_love_cli)
-[![status](https://img.shields.io/badge/ci-auto--generated-blue?style=flat-square)](./sanity_check_report.md)
-[![badge](https://img.shields.io/badge/radar--ready-yes-critical?logo=githubactions&style=flat-square)](https://www.vaultproject.io/docs/secrets/radar)
+[![brew install](https://img.shields.io/badge/brew--install-success-green?logo=homebrew)](https://github.com/raymonepping/homebrew-radar_love)
+[![version](https://img.shields.io/badge/version-2.9.1-blue)](https://github.com/raymonepping/homebrew-radar_love)
 
 ---
 
-## 🎯 What Is This?
+## 🧭 What Is This?
 
-`radar_love_cli` is a **modular, Homebrew-installable CLI** that lets you simulate realistic code leaks (secrets, PII, etc.) to test secret scanning pipelines with Vault Radar, TruffleHog, Gitleaks, and more.
+radar_love is a Homebrew-installable, wizard-powered CLI.
+
+---
+
+## 🚀 Quickstart
+
+```bash
+brew tap 
+brew install /radar_love
+radar_love
+```
+
+---
+
+Want to customize?
+
+```bash
+export FOLDER_TREE_HOME=/opt/homebrew/opt/..
+```
+
+---
+
+## 📂 Project Structure
+
+```
+./
+├── bin/
+│   ├── CHANGELOG_radar_love.md
+│   └── radar_love*
+├── core/
+│   ├── bump_version.sh*
+│   ├── commit_gh.sh*
+│   ├── folder_tree.sh*
+│   ├── footer.tpl
+│   ├── generate_documentation.sh*
+│   ├── header.tpl
+│   ├── README.tpl
+│   ├── sanity_check.sh*
+│   ├── top10_validator.sh*
+│   ├── trigger_git_scan.sh*
+│   ├── validate_env.sh*
+│   ├── vault_generate_scenarios_md.sh*
+│   ├── vault_radar_builder.sh*
+│   ├── vault_radar_decision_tree.sh*
+│   ├── vault_radar_destruction.sh*
+│   ├── vault_radar_input.json
+│   ├── vault_radar_quotes_helper.sh*
+│   ├── vault_radar_quotes.json
+│   ├── vault_radar_scenarios.tpl
+│   └── vault_radar_validator.sh*
+├── Formula/
+│   └── radar-love-cli.rb
+├── templates/
+│   ├── .keep
+│   ├── footer.tpl
+│   ├── header.tpl
+│   └── README.tpl
+├── test/
+│   ├── .backup.json
+│   ├── .gitkeep
+│   ├── .keep
+│   ├── backup_log.tpl
+│   ├── README.md
+│   ├── test_sanity.sh
+│   └── vault-scenarios.md
+├── tpl/
+│   ├── readme_01_header.tpl
+│   ├── readme_02_project.tpl
+│   ├── readme_03_structure.tpl
+│   ├── readme_04_body.tpl
+│   ├── readme_05_quote.tpl
+│   ├── readme_06_article.tpl
+│   └── readme_07_footer.tpl
+├── .backup.yaml
+├── .backupignore
+├── .brewinfo
+├── .version
+├── FOLDER_TREE.md
+├── LICENSE
+├── README.md.old
+├── reload_version.sh*
+├── repos_report.md
+├── update_formula.sh*
+└── vault-scenarios.md
+
+7 directories, 52 files
+```
+
+---
+
+## 🧭 What Is This?
+
+radar-love-cli is a Homebrew-installable, wizard-powered CLI for simulating secret leaks and triggering GitHub PR scans with HashiCorp Vault Radar. Perfect for:
+
+- Security teams or DevOps wanting to test and demo secret-scanning pipelines
+- Developers who need to safely simulate credential leaks without real risk
+- Anyone who wants to visualize the impact of secrets in code—before it’s a real problem
+
+---
+
+## 🔑 Key Features
+
+- ✅ One CLI to orchestrate your entire Radar demo  
+- 🧪 Includes leak builders, commit triggers, PR scans  
+- 📎 Built-in GitHub automation (via `gh`)  
+- 🔍 Environment validator with `--validate`  
+- 🧼 CI-ready with `--quiet`, `--debug`, and `--status`  
 
 ---
 
@@ -22,34 +127,6 @@ radar_love --create true --build true --commit true --request true
 ```
 
 All flags are optional. This CLI wraps and coordinates a set of deeply integrated scripts.
-
----
-
-## 📂 Structure
-
-```
-.
-├── bin/                 # Main CLI symlink (radar_love)
-├── core/                # Modular bash logic
-│   ├── commit_gh.sh     # GitHub commit helper
-│   ├── validate_env.sh  # Dependency checker
-│   └── ...
-├── templates/           # TPL/JSON banners
-├── test/                # (Reserved for testing)
-├── radar_love_cli.rb    # Homebrew formula
-├── README.md            # This file
-└── .brewinfo            # (Optional brew metadata)
-```
-
----
-
-## 🔑 Key Features
-
-- ✅ One CLI to orchestrate your entire Radar demo  
-- 🧪 Includes leak builders, commit triggers, PR scans  
-- 📎 Built-in GitHub automation (via `gh`)  
-- 🔍 Environment validator with `--validate`  
-- 🧼 CI-ready with `--quiet`, `--debug`, and `--status`  
 
 ---
 
@@ -78,21 +155,54 @@ radar_love --help
 
 ---
 
-## 🧠 Philosophy
+### ✨ Other CLI tooling available
 
-This toolkit was born from a simple need: demo secret-scanning tools in the most realistic way possible — without real leaks, with full automation, and with style.
+✅ **brew-brain-cli**  
+CLI toolkit to audit, document, and manage your Homebrew CLI arsenal with one meta-tool
 
-It grew into a modular, CI-aware CLI that now installs via Homebrew.  
-Because automation should automate itself. 🚀
+✅ **bump-version-cli**  
+CLI toolkit to bump semantic versions in Bash scripts and update changelogs
 
-> “And as the day was dawning. My plane flew away. With all the things caught in my mind..” — *Oasis*
+✅ **commit-gh-cli**  
+CLI toolkit to commit, tag, and push changes to GitHub
+
+✅ **folder-tree-cli**  
+CLI toolkit to visualize folder structures with Markdown reports
+
+✅ **radar-love-cli**  
+CLI toolkit to simulate secret leaks and trigger GitHub PR scans
+
+✅ **repository-audit-cli**  
+CLI toolkit to audit Git repositories and folders, outputting Markdown/CSV/JSON reports
+
+✅ **repository-backup-cli**  
+CLI toolkit to back up GitHub repositories with tagging, ignore rules, and recovery
+
+✅ **repository-export-cli**  
+CLI toolkit to export, document, and manage your GitHub repositories from the CLI
+
+✅ **self-doc-gen-cli**  
+CLI toolkit for self-documenting CLI generation with Markdown templates and folder visualization
 
 ---
 
-© 2025 Raymon Epping
+## 🧠 Philosophy
 
-🧠 Powered by `radar_love.sh` — 📚 Related Articles
+radar_love 
 
-- 📖 [Part I – From Dream to Demo](https://medium.com/continuous-insights/from-dream-to-demo-building-an-automated-secret-scanning-pipeline-064a64971f64)  
-- 🛠️ [Part II – From Vision to Version](https://medium.com/@raymonepping/from-vision-to-version-evolving-radar-love-with-flags-validation-and-ci-swagger-83610d549412)  
-- 📦 Part III – Packaging `radar_love_cli` (TBD)
+> Some might say that sunshine follows thunder
+> Go and tell it to the man who cannot shine
+
+> Some might say that we should never ponder
+> On our thoughts today ‘cos they hold sway over time
+
+---
+
+## 📘 Read the Full Medium.com article
+
+📖 [Article](..) 
+
+---
+
+© 2025 Your Name  
+🧠 Powered by self_docs.sh — 🌐 Works locally, CI/CD, and via Brew
