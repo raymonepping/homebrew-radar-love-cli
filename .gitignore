@@ -12,6 +12,8 @@ Thumbs.db
 .backup.json
 .backupignore
 v*.tar.gz
+readme_*.tpl
+reload_version.sh
 
 ########################################
 # 💻 IDE & Editor Configs
